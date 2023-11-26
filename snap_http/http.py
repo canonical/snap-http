@@ -21,7 +21,9 @@ def get(path: str) -> SnapdResponse:
 
     Currently a stub.
     """
-    return _make_request(path, "GET")
+    response = _make_request(path, "GET")
+
+    return SnapdResponse.from_http_response(response)
 
 
 def post(path: str, body: Dict[str, Any]) -> SnapdResponse:
@@ -29,12 +31,9 @@ def post(path: str, body: Dict[str, Any]) -> SnapdResponse:
 
     Currently a stub.
     """
-    return SnapdResponse(
-        type="stub",
-        status_code=500,
-        status="stub",
-        result={"nothing": "this is a stub"},
-    )
+    response = _make_request(path, "POST", body)
+
+    return SnapdResponse.from_http_response(response)
 
 
 def _make_request(path: str, method: str, body: Optional[Dict[str, Any]] = None) -> Any:
@@ -66,6 +65,6 @@ def _make_request(path: str, method: str, body: Optional[Dict[str, Any]] = None)
     sock.close()
 
     if response.status >= 400:
-        raise SnapdHttpException(body)
+        raise SnapdHttpException(response_body)
 
     return json.loads(response_body)
