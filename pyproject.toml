@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "snap-http"
+version = "0.1.0"
+description = "A library for interacting with snapd via its REST API."
+authors = ["Mitch Burton <mitch.burton@canonical.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.3"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.6"
+mypy = "^1.7.1"
+
+[tool.ruff]
+exclude = [
+    ".tox",
+    "snap_http/__init__.py",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
