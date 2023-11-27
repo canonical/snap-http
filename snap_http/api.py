@@ -62,7 +62,7 @@ def hold_all(
     hold_level: Literal["general", "auto-refresh"] = "general",
     time: str = "forever",
 ) -> SnapdResponse:
-    """List `hold_snap`, but for the list of snaps in `names`."""
+    """Like `hold_snap`, but for the list of snaps in `names`."""
     return http.post(
         "/snaps",
         {"action": "hold", "snaps": names, "hold-level": hold_level, "time": time},
