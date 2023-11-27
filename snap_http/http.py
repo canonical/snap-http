@@ -44,8 +44,9 @@ def _make_request(path: str, method: str, body: Optional[Dict[str, Any]] = None)
 
     if body:
         json_body = json.dumps(body)
+        encoded_length = len(json_body.encode())
         request += "Content-Type: application/json\r\n"
-        request += f"Content-Length: {len(json_body)}\r\n\r\n{json_body}"
+        request += f"Content-Length: {encoded_length}\r\n\r\n{json_body}"
     else:
         request += "\r\n"
 
