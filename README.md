@@ -13,7 +13,7 @@ You can install snap-http directly from here! I'm planning to publish it to PYPI
 done the test-suite (sorry I didn't do TDD, we can't all be perfect).
 
 ```bash
-$ pip install git+https://github.com/Perfect5th/snap-http.git
+pip install git+https://github.com/Perfect5th/snap-http.git
 ```
 
 ## Usage
