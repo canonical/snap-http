@@ -15,20 +15,14 @@ class SnapdHttpException(Exception):
 
 
 def get(path: str) -> SnapdResponse:
-    """Peform a GET request of `path`.
-
-    Currently a stub.
-    """
+    """Peform a GET request of `path`."""
     response = _make_request(path, "GET")
 
     return SnapdResponse.from_http_response(response)
 
 
 def post(path: str, body: Dict[str, Any]) -> SnapdResponse:
-    """Perform a POST request of `path`, JSON-ifying `body`.
-
-    Currently a stub.
-    """
+    """Perform a POST request of `path`, JSON-ifying `body`."""
     response = _make_request(path, "POST", body)
 
     return SnapdResponse.from_http_response(response)
