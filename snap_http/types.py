@@ -15,7 +15,8 @@ class SnapdResponse:
     status_code: int
     status: str
     result: Union[Dict[str, Any], List[Any]]
-    sources: List[str]
+    sources: Union[List[str], None] = None
+    change: Union[str, None] = None
 
     @classmethod
     def from_http_response(cls: Type, response: Dict[str, Any]) -> SnapdResponse:
