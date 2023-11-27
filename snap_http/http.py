@@ -9,8 +9,6 @@ from .types import SnapdResponse
 BASE_URL = "http://localhost/v2"
 SNAPD_SOCKET = "/run/snapd.socket"
 
-_MAXLINE = 65536
-
 
 class SnapdHttpException(Exception):
     """An exception raised during HTTP communication with snapd."""
