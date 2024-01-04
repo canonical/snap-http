@@ -4,12 +4,19 @@ version = "0.1.0"
 description = "A library for interacting with snapd via its REST API."
 authors = ["Mitch Burton <mitch.burton@canonical.com>"]
 readme = "README.md"
+exclude = [
+    "tests/"
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.6"
@@ -20,6 +27,12 @@ exclude = [
     ".tox",
     "snap_http/__init__.py",
 ]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.pytest.ini_options]
+addopts = "--cov-branch"
 
 [build-system]
 requires = ["poetry-core"]
