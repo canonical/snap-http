@@ -1,0 +1,41 @@
+name: Lint and Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - main
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Install Python dependencies
+        # since access to the snapd socket requires root privileges,
+        # the tests (pytest) have to be run as root
+        run: |
+          curl -sSL https://install.python-poetry.org | sudo python -
+          sudo /root/.local/bin/poetry config virtualenvs.create false &&
+          sudo /root/.local/bin/poetry install --no-root
+
+      - name: Lint
+        run: |
+          sudo python -m ruff check .
+          sudo python -m mypy snap_http/
+
+      - name: Set up Snapd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y snapd
+          sudo systemctl start snapd.service
+
+      - name: Test
+        run: sudo python -m pytest --cov=snap_http/ tests/

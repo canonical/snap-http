@@ -206,3 +206,8 @@ def list() -> SnapdResponse:
     This stomps on builtins.list, so please import it namespaced.
     """
     return http.get("/snaps")
+
+
+def get_conf(name: str) -> SnapdResponse:
+    """Get the configuration details for the snap `name`."""
+    return http.get(f"/snaps/{name}/conf")

@@ -20,4 +20,5 @@ from .api import (
     unhold,
     unhold_all,
     list,
+    get_conf,
 )
