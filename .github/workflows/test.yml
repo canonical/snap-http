@@ -7,53 +7,57 @@ on:
     branches: [main]
 
 jobs:
-  lint_and_unit_test:
-    strategy:
-      matrix:
-        os: ["ubuntu-22.04", "ubuntu-20.04"]
-    runs-on: ${{ matrix.os }}
+  lint_and_typecheck:
+    name: lint and typecheck
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v3
-
-      - name: Install Python dependencies
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: install poetry and dependencies
         run: |
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
           pipx install poetry==1.7
           poetry install
+      - name: lint
+        run: poetry run ruff check .
+      - name: typecheck
+        run: poetry run mypy snap_http/
 
-      - name: Lint
-        run : |
-          poetry run ruff check .
-          poetry run mypy snap_http/
-
-      - name: Unit Test
+  unit_test:
+    name: tox unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: install poetry and dependencies
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          pipx install poetry==1.7
+          poetry install
+      - name: tox unit test
         run: poetry run tox
 
   integration_test:
-    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        os: ["ubuntu-22.04", "ubuntu-20.04"]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v3
-
-      - name: Install Python dependencies
-        # since access to the snapd socket requires root privileges,
-        # the tests (pytest) have to be run as root
+        # Access to the snapd socket requires root privileges, so these
+        # tests need to be run as root.
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: install python dependencies
         run: |
-          curl -sSL https://install.python-poetry.org | sudo python -
-          sudo /root/.local/bin/poetry config virtualenvs.create false &&
-          sudo /root/.local/bin/poetry install --no-root
-
-      - name: Set up Snapd
+          sudo apt update
+          sudo apt install -y python3-pip
+          sudo pip install poetry==1.7
+          sudo poetry install
+      - name: snapd setup
         run: |
-          sudo apt-get update
-          sudo apt-get install -y snapd
+          sudo apt install -y snapd
           sudo systemctl start snapd.service
-
-      - name: Integration Test
-        run: sudo python -m pytest --cov=snap_http/ tests/
+      - name: integration test
+        run: sudo poetry run pytest tests/integration
