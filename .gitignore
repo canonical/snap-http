@@ -6,7 +6,9 @@ tmp/
 *.py[cod]
 *.egg
 build
+dist
 htmlcov
 **/__pycache__/
 .coverage
-dist/
+.tox
+.mypy
