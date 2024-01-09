@@ -29,11 +29,11 @@ jobs:
 
       - name: Lint
         run: |
-          sudo python -m ruff check .
-          sudo python -m mypy snap_http/
+          poetry run ruff check .
+          poetry run mypy snap_http/
 
       - name: Unit Test
-        run: tox
+        run: poetry run tox
 
       - name: Set up Snapd
         run: |
