@@ -11,11 +11,8 @@ change.*
 
 ## Installation
 
-You can install snap-http directly from here! I'm planning to publish it to PYPI as soon as I'm
-done the test-suite (sorry I didn't do TDD, we can't all be perfect).
-
 ```bash
-pip install git+https://github.com/Perfect5th/snap-http.git
+pip install snap-http
 ```
 
 ## Usage
