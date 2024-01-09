@@ -37,6 +37,7 @@ def test_check_change(monkeypatch):
 
 def test_check_change_exception(monkeypatch):
     """`api.check_change` raises a `http.SnapdHttpException`."""
+
     def mock_get(path):
         assert path == "/changes/1"
 
@@ -76,6 +77,7 @@ def test_check_changes(monkeypatch):
 
 def test_check_changes_exception(monkeypatch):
     """`api.check_changes` raises a `http.SnapdHttpException`."""
+
     def mock_get(path):
         assert path == "/changes?select=all"
 
@@ -112,6 +114,7 @@ def test_enable(monkeypatch):
 
 def test_enable_exception(monkeypatch):
     """`api.enable` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "enable"}
@@ -129,6 +132,7 @@ def test_enable_all_exception(monkeypatch):
 
     NOTE: as of 2024-01-08, enable/disable is not yet supported for multiple snaps.
     """
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "enable", "snaps": ["placeholder1", "placeholder2"]}
@@ -166,6 +170,7 @@ def test_disable(monkeypatch):
 
 def test_disable_exception(monkeypatch):
     """`api.disable` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "disable"}
@@ -183,6 +188,7 @@ def test_disable_all_exception(monkeypatch):
 
     NOTE: as of 2024-01-08, enable/disable is not yet supported for multiple snaps.
     """
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "disable", "snaps": ["placeholder1", "placeholder2"]}
@@ -220,6 +226,7 @@ def test_hold(monkeypatch):
 
 def test_hold_exception(monkeypatch):
     """`api.hold` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "hold", "hold-level": "general", "time": "forever"}
@@ -244,7 +251,12 @@ def test_hold_all(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/snaps"
-        assert body == {"action": "hold", "snaps": ["placeholder1", "placeholder2"], "hold-level": "general", "time": "forever"}
+        assert body == {
+            "action": "hold",
+            "snaps": ["placeholder1", "placeholder2"],
+            "hold-level": "general",
+            "time": "forever",
+        }
 
         return mock_response
 
@@ -257,9 +269,15 @@ def test_hold_all(monkeypatch):
 
 def test_hold_all_exception(monkeypatch):
     """`api.hold_all` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps"
-        assert body == {"action": "hold", "snaps": ["placeholder1", "placeholder2"], "hold-level": "general", "time": "forever"}
+        assert body == {
+            "action": "hold",
+            "snaps": ["placeholder1", "placeholder2"],
+            "hold-level": "general",
+            "time": "forever",
+        }
 
         raise http.SnapdHttpException()
 
@@ -363,6 +381,7 @@ def test_install_classic(monkeypatch):
 
 def test_install_exception(monkeypatch):
     """`api.install` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "install"}
@@ -400,6 +419,7 @@ def test_install_all(monkeypatch):
 
 def test_install_all_exception(monkeypatch):
     """`api.install_all` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "install", "snaps": ["placeholder1", "placeholder2"]}
@@ -483,6 +503,7 @@ def test_revert_classic(monkeypatch):
 
 def test_revert_exception(monkeypatch):
     """`api.revert` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "revert"}
@@ -520,6 +541,7 @@ def test_revert_all(monkeypatch):
 
 def test_revert_all_exception(monkeypatch):
     """`api.revert_all` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "revert", "snaps": ["placeholder1", "placeholder2"]}
@@ -557,6 +579,7 @@ def test_remove(monkeypatch):
 
 def test_remove_exception(monkeypatch):
     """`api.remove` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "remove"}
@@ -594,6 +617,7 @@ def test_remove_all(monkeypatch):
 
 def test_remove_all_exception(monkeypatch):
     """`api.remove_all` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "remove", "snaps": ["placeholder1", "placeholder2"]}
@@ -631,6 +655,7 @@ def test_switch(monkeypatch):
 
 def test_switch_exception(monkeypatch):
     """`api.switch` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "switch", "channel": "stable"}
@@ -648,9 +673,14 @@ def test_switch_all_exception(monkeypatch):
 
     NOTE: as of 2024-01-08, switch is not yet supported for multiple snaps.
     """
+
     def mock_post(path, body):
         assert path == "/snaps"
-        assert body == {"action": "switch", "channel": "stable", "snaps": ["placeholder1", "placeholder2"]}
+        assert body == {
+            "action": "switch",
+            "channel": "stable",
+            "snaps": ["placeholder1", "placeholder2"],
+        }
 
         raise http.SnapdHttpException()
 
@@ -685,6 +715,7 @@ def test_unhold(monkeypatch):
 
 def test_unhold_exception(monkeypatch):
     """`api.unhold` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
         assert body == {"action": "unhold"}
@@ -722,6 +753,7 @@ def test_unhold_all(monkeypatch):
 
 def test_unhold_all_exception(monkeypatch):
     """`api.revert_all` raises a `http.SnapdHttpException`."""
+
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {"action": "unhold", "snaps": ["placeholder1", "placeholder2"]}
