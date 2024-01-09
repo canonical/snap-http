@@ -1,0 +1,23 @@
+Source: snap-http
+Section: python
+Priority: optional
+Maintainer: Mitch Burton <mitch.burton@canonical.com>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-setuptools, python3-all,
+    pybuild-plugin-pyproject, python3-poetry, python3-pytest
+Standards-Version: 4.6.0
+Homepage: https://github.com/perfect5th/snap-http
+Vcs-Browser: https://github.com/perfect5th/snap-http
+Vcs-Git: https:/github.com/perfect5th/snap-http.git
+Testsuite: autopkgtest-pkg-python
+Rules-Requires-Root: no
+
+Package: python3-snap-http
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Suggests: python-snap-http-doc
+Description: A library for interacting with snapd via its REST API.
+ snap-http provides convenience methods for making HTTP requests to snapd's unix
+ socket REST API. It is a thin, imperative library that simply performs requests
+ and marshalls non-error responses into Python objects.
+ .
+ This package installs the library for Python 3.

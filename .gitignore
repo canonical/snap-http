@@ -12,3 +12,5 @@ htmlcov
 .coverage
 .tox
 .mypy
+
+.pybuild
