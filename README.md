@@ -6,9 +6,6 @@ snap-http is a Python library used to interact with snapd's REST API, allowing y
 programmatically install and manage snaps in your Python applications. It has no dependencies
 other than Python 3.8 or higher.
 
-*N.B.: snap-http is in **very** early development, the API is currently unstable and is subject to
-change.*
-
 ## Installation
 
 ```bash
