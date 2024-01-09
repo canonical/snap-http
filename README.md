@@ -1,5 +1,7 @@
 # snap-http
 
+![check](https://github.com/perfect5th/snap-http/actions/workflows/test.yml/badge.svg)
+
 snap-http is a Python library used to interact with snapd's REST API, allowing you to
 programmatically install and manage snaps in your Python applications. It has no dependencies
 other than Python 3.8 or higher.
