@@ -27,7 +27,10 @@ def enable(name: str) -> SnapdResponse:
 
 
 def enable_all(names: List[str]) -> SnapdResponse:
-    """Like `enable_snap`, but for the list of snaps in `names`."""
+    """Like `enable_snap`, but for the list of snaps in `names`.
+
+    NOTE: as of 2024-01-08, enable/disable is not yet supported for multiple snaps.
+    """
     return http.post("/snaps", {"action": "enable", "snaps": names})
 
 
@@ -37,8 +40,11 @@ def disable(name: str) -> SnapdResponse:
 
 
 def disable_all(names: List[str]) -> SnapdResponse:
-    """Like `disable_snap`, but for the list of snaps in `names`."""
-    return http.post("/snaps", {"action": "enable", "snaps": names})
+    """Like `disable_snap`, but for the list of snaps in `names`.
+
+    NOTE: as of 2024-01-08, enable/disable is not yet supported for multiple snaps.
+    """
+    return http.post("/snaps", {"action": "disable", "snaps": names})
 
 
 def hold(
@@ -165,7 +171,7 @@ def revert(
 
 def revert_all(names: List[str]) -> SnapdResponse:
     """Reverts all snaps in `names` to the revision used prior to the last refresh."""
-    return http.post("/snaps", {"action": "refresh", "snaps": names})
+    return http.post("/snaps", {"action": "revert", "snaps": names})
 
 
 def remove(name: str) -> SnapdResponse:
@@ -184,7 +190,10 @@ def switch(name: str, *, channel: str = "stable") -> SnapdResponse:
 
 
 def switch_all(names: List[str], channel: str = "stable") -> SnapdResponse:
-    """Switches the tracking channels of all snaps in `names`."""
+    """Switches the tracking channels of all snaps in `names`.
+
+    NOTE: as of 2024-01-08, switch is not yet supported for multiple snaps.
+    """
     return http.post("/snaps", {"action": "switch", "channel": channel, "snaps": names})
 
 
