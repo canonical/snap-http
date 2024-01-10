@@ -6,6 +6,7 @@ on:
     # Every day at 12:00-0700
     - cron: '0 19 * * *'
 
+jobs:
   snapd_integration_test:
     strategy:
       matrix:
