@@ -22,3 +22,13 @@ from .api import (
     list,
     get_conf,
 )
+
+from .http import SnapdHttpException
+
+from .types import (
+    COMPLETE_STATUSES,
+    INCOMPLETE_STATUSES,
+    SUCCESS_STATUSES,
+    ERROR_STATUSES,
+    SnapdResponse,
+)

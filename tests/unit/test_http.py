@@ -22,6 +22,7 @@ def use_snapd_response():
 
     sock = socket.socket(family=socket.AF_UNIX)
     sock.bind(FAKE_SNAPD_SOCKET)
+    sock.listen()
 
     thread = None
 
@@ -37,7 +38,6 @@ def use_snapd_response():
         receiver = io.BytesIO()
 
         def run():
-            sock.listen()
             conn, _ = sock.accept()
             receiver.write(conn.recv(1024))
             conn.sendall(http_response.encode())

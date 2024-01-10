@@ -4,6 +4,13 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Type, Union
 
 
+# For the below, refer to https://snapcraft.io/docs/snapd-api#heading--changes
+COMPLETE_STATUSES = {"Done", "Error", "Hold", "Abort"}
+INCOMPLETE_STATUSES = {"Do", "Doing", "Undo", "Undoing"}
+SUCCESS_STATUSES = {"Done"}
+ERROR_STATUSES = {"Error", "Hold", "Unknown"}
+
+
 @dataclass
 class SnapdResponse:
     """A response received from snapd's REST API.
