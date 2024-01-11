@@ -1,3 +1,9 @@
+snap-http (1.1.0-0ubuntu0) noble; urgency=medium
+
+  * Upstream release 1.1.0
+
+ -- Mitch Burton <mitch.burton@canonical.com>  Thu, 11 Jan 2024 10:20:13 -0800
+
 snap-http (1.0.3-0ubuntu0) noble; urgency=medium
 
   * Initial upstream release
