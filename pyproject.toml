@@ -10,7 +10,7 @@ exclude = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     "Operating System :: POSIX :: Linux",
 ]
 
