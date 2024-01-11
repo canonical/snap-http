@@ -7,7 +7,7 @@ Build-Depends: debhelper-compat (= 13), dh-python, python3-setuptools, python3-a
 Standards-Version: 4.6.0
 Homepage: https://github.com/perfect5th/snap-http
 Vcs-Browser: https://github.com/perfect5th/snap-http
-Vcs-Git: https:/github.com/perfect5th/snap-http.git
+Vcs-Git: https://github.com/perfect5th/snap-http.git
 Testsuite: autopkgtest-pkg-python
 Rules-Requires-Root: no
 
