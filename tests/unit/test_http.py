@@ -4,6 +4,7 @@ import io
 import json
 import os
 import socket
+import tempfile
 import threading
 
 import pytest
@@ -109,7 +110,7 @@ def test_post(use_snapd_response, monkeypatch):
         "result": None,
         "change": "1",
     }
-    receiver, thread = use_snapd_response(200, mock_response)
+    receiver, thread = use_snapd_response(202, mock_response)
 
     result = http.post("/snaps/placeholder", {"action": "install"})
 
@@ -132,3 +133,67 @@ def test_post_exception(use_snapd_response, monkeypatch):
         _ = http.post("/snaps/placeholder", {"action": "install"})
 
     assert_request_contains(receiver, thread, '{"action": "install"}')
+
+
+def test_put(use_snapd_response, monkeypatch):
+    """`http.put` returns a `types.SnapdResponse`."""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "async",
+        "status_code": 202,
+        "status": "Accepted",
+        "result": None,
+        "change": "1",
+    }
+    receiver, thread = use_snapd_response(202, mock_response)
+
+    result = http.put("/snaps/placeholder/set_conf", {"foo": "bar"})
+
+    assert result == types.SnapdResponse.from_http_response(mock_response)
+    assert_request_contains(receiver, thread, '{"foo": "bar"}')
+
+
+def test_put_exception(use_snapd_response, monkeypatch):
+    """`http.put` raises a `http.SnapdHttpException` for error response codes."""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "sync",
+        "status_code": 404,
+        "status": "Not Found",
+        "result": None,
+    }
+    receiver, thread = use_snapd_response(404, mock_response)
+
+    with pytest.raises(http.SnapdHttpException):
+        _ = http.put("/snaps/placeholder/set_conf", {"foo": "bar"})
+
+    assert_request_contains(receiver, thread, '{"foo": "bar"}')
+
+
+def test_making_multipart_request(use_snapd_response, monkeypatch):
+    """`http._make_request` successfully makes a multi-part form request."""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "async",
+        "status_code": 202,
+        "status": "Accepted",
+        "result": None,
+        "change": "1",
+    }
+    receiver, thread = use_snapd_response(202, mock_response)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        file = types.FileUpload(name="snap", path=tmp.name)
+        result = http._make_request(
+            "/snaps",
+            "POST",
+            form_data={"action": "install"},
+            files=[file],
+        )
+
+    assert result == mock_response
+    assert_request_contains(
+        receiver,
+        thread,
+        f'Content-Disposition: form-data; name="snap"; filename="{file.filename}"',
+    )

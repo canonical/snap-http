@@ -806,3 +806,25 @@ def test_get_conf(monkeypatch):
     result = api.get_conf("placeholder")
 
     assert result == mock_response
+
+
+def test_set_conf(monkeypatch):
+    """`api.set_conf` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_put(path, _):
+        assert path == "/snaps/placeholder/conf"
+
+        return mock_response
+
+    monkeypatch.setattr(http, "put", mock_put)
+
+    result = api.set_conf("placeholder", {"foo": "bar"})
+
+    assert result == mock_response

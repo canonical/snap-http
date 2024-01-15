@@ -4,25 +4,42 @@ from typing import Any, Callable
 import snap_http
 
 
-def call_and_await_api(name: str, *args: Any, **kwargs: Any) -> snap_http.SnapdResponse:
-    """Call the `name` endpoint and wait until changes are applied."""
-    f: Callable[..., snap_http.SnapdResponse] = getattr(snap_http, name)
-    response = f(*args, **kwargs)
+def wait_for(
+    func: Callable[..., snap_http.SnapdResponse]
+) -> Callable[..., snap_http.SnapdResponse]:
+    """Call `func` and wait for changes to be applied in snapd."""
 
-    if response.type == "sync":
-        return response
+    def wrapper(*args: Any, **kwargs: Any) -> snap_http.SnapdResponse:
+        response = func(*args, **kwargs)
 
-    change = response.change
-    while True:
-        time.sleep(0.1)
+        if response.type == "sync":
+            return response
 
-        status = snap_http.check_change(change).result
-        if status["status"] in snap_http.COMPLETE_STATUSES:
-            break
+        change = response.change
+        while True:
+            time.sleep(0.1)
 
-    return response
+            status = snap_http.check_change(change).result
+            if status["status"] in snap_http.COMPLETE_STATUSES:
+                return response
+
+    return wrapper
 
 
 def is_snap_installed(snap_name: str) -> bool:
     """Check if the snap with name `snap_name` is installed."""
     return snap_name in {snap["name"] for snap in snap_http.list().result}
+
+
+@wait_for
+def sideload_snap(file_path: str) -> bool:
+    """Sideload a snap from the local filesystem."""
+    form_data = {"action": "install", "devmode": "true"}
+    file = snap_http.types.FileUpload(name="snap", path=file_path)
+    response = snap_http.http._make_request(
+        "/snaps",
+        "POST",
+        form_data=form_data,
+        files=[file],
+    )
+    return snap_http.SnapdResponse.from_http_response(response)

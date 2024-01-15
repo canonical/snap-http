@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
+from pathlib import Path
 from typing import Any, Dict, List, Type, Union
 
 
@@ -28,3 +30,22 @@ class SnapdResponse:
     @classmethod
     def from_http_response(cls: Type, response: Dict[str, Any]) -> SnapdResponse:
         return cls(**{k.replace("-", "_"): v for k, v in response.items()})
+
+
+@dataclass
+class FileUpload:
+    """A file to upload to snapd's REST API."""
+
+    name: str
+    path: str
+
+    @cached_property
+    def filename(self) -> str:
+        """Return the filename."""
+        return Path(self.path).name
+
+    @cached_property
+    def content(self) -> bytes:
+        """Read and return the file's binary content."""
+        with open(self.path, "rb") as f:
+            return f.read()

@@ -5,7 +5,7 @@ See https://snapcraft.io/docs/snapd-api for documentation of the API.
 Permissions are based on the user calling the API, most mutative interactions
 (install, refresh, etc) require root.
 """
-from typing import Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from . import http
 from .types import SnapdResponse
@@ -217,6 +217,14 @@ def list() -> SnapdResponse:
     return http.get("/snaps")
 
 
+# Configuration: get and set snap options
+
+
 def get_conf(name: str) -> SnapdResponse:
     """Get the configuration details for the snap `name`."""
     return http.get(f"/snaps/{name}/conf")
+
+
+def set_conf(name: str, config: Dict[str, Any]) -> SnapdResponse:
+    """Set the configuration details for the snap `name`."""
+    return http.put(f"/snaps/{name}/conf", config)

@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+DEFAULT_BAR="default"
+DEFAULT_BAZ="default"
+
+bar="$(snapctl get foo.bar)"
+if [ -z "$bar" ]; then
+    bar="$DEFAULT_BAR"
+fi
+
+baz="$(snapctl get foo.baz)"
+if [ -z "$baz" ]; then
+    baz="$DEFAULT_BAZ"
+fi
+
+snapctl set foo.bar="$bar"
+snapctl set foo.baz="$baz"

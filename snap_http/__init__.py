@@ -21,6 +21,7 @@ from .api import (
     unhold_all,
     list,
     get_conf,
+    set_conf,
 )
 
 from .http import SnapdHttpException
