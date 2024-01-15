@@ -23,5 +23,11 @@ jobs:
         run: |
           sudo apt install -y snapd
           sudo systemctl start snapd.service
+      - name: build test_snap
+        run: |
+          sudo snap install snapcraft --classic
+          cd tests/integration/test_snap
+          snapcraft --destructive-mode
+          cd $GITHUB_WORKSPACE
       - name: integration test
         run: sudo poetry run pytest tests/integration
