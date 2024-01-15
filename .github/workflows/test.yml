@@ -43,23 +43,4 @@ jobs:
         run: poetry run tox
 
   integration_test:
-    strategy:
-      matrix:
-        os: ["ubuntu-22.04", "ubuntu-20.04"]
-    runs-on: ${{ matrix.os }}
-    steps:
-        # Access to the snapd socket requires root privileges, so these
-        # tests need to be run as root.
-      - uses: actions/checkout@v4
-      - name: install python dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          sudo pip install poetry==1.7
-          sudo poetry install
-      - name: snapd setup
-        run: |
-          sudo apt install -y snapd
-          sudo systemctl start snapd.service
-      - name: integration test
-        run: sudo poetry run pytest tests/integration
+    uses: ./.github/workflows/integration-test.yml
