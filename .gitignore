@@ -10,3 +10,5 @@ htmlcov
 **/__pycache__/
 .coverage
 dist/
+
+*.snap

@@ -2,9 +2,10 @@
 import json
 import socket
 from http.client import HTTPResponse
-from typing import Any, Dict, Optional
+from io import BytesIO
+from typing import Any, Optional
 
-from .types import SnapdResponse
+from .types import JsonData, SnapdRequestBody, SnapdResponse
 
 BASE_URL = "http://localhost/v2"
 SNAPD_SOCKET = "/run/snapd.socket"
@@ -21,14 +22,23 @@ def get(path: str) -> SnapdResponse:
     return SnapdResponse.from_http_response(response)
 
 
-def post(path: str, body: Dict[str, Any]) -> SnapdResponse:
+def post(path: str, body: SnapdRequestBody) -> SnapdResponse:
     """Perform a POST request of `path`, JSON-ifying `body`."""
     response = _make_request(path, "POST", body)
 
     return SnapdResponse.from_http_response(response)
 
 
-def _make_request(path: str, method: str, body: Optional[Dict[str, Any]] = None) -> Any:
+def put(path: str, body: SnapdRequestBody) -> SnapdResponse:
+    """Perform a PUT request of `path`, JSON-ifying `body`."""
+    response = _make_request(path, "PUT", body)
+
+    return SnapdResponse.from_http_response(response)
+
+
+def _make_request(
+    path: str, method: str, body: Optional[SnapdRequestBody] = None
+) -> Any:
     """Performs a request to `path` using `method`, including `body`, if provided.
 
     urllib doesn't support HTTP requests to UNIX sockets, so we create out own socket, start the
@@ -40,17 +50,24 @@ def _make_request(path: str, method: str, body: Optional[Dict[str, Any]] = None)
     url = BASE_URL + path
     response = HTTPResponse(sock, method=method, url=url)
 
-    request = f"{method} {url} HTTP/1.1\r\nHost: localhost\r\n"
+    request = BytesIO()
+    request.write(f"{method} {url} HTTP/1.1\r\nHost: localhost\r\n".encode())
 
     if body:
-        json_body = json.dumps(body)
-        encoded_length = len(json_body.encode())
-        request += "Content-Type: application/json\r\n"
-        request += f"Content-Length: {encoded_length}\r\n\r\n{json_body}"
-    else:
-        request += "\r\n"
+        if isinstance(body, dict):
+            body = JsonData(body)
 
-    sock.sendall(request.encode())
+        request.write(
+            (
+                f"Content-Type: {body.content_type_header}\r\n"
+                f"Content-Length: {body.content_length}\r\n\r\n"
+            ).encode()
+        )
+        request.write(body.serialized)
+    else:
+        request.write(b"\r\n")
+
+    sock.sendall(request.getvalue())
 
     response.begin()
     response_body = response.read()

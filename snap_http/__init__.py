@@ -21,6 +21,7 @@ from .api import (
     unhold_all,
     list,
     get_conf,
+    set_conf,
 )
 
 from .http import SnapdHttpException
@@ -31,4 +32,7 @@ from .types import (
     SUCCESS_STATUSES,
     ERROR_STATUSES,
     SnapdResponse,
+    FormData,
+    JsonData,
+    FileUpload,
 )

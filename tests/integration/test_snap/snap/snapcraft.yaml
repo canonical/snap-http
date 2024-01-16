@@ -1,0 +1,20 @@
+name: test-snap
+base: core22
+version: perpetual
+summary: A test snap
+description: |
+  A snap to make integration tests easier to do.
+
+grade: devel
+confinement: devmode
+
+apps:
+  pocketses:
+    command: bin/test-snap
+
+parts:
+  test-snap:
+    plugin: python
+    source: .
+    parse-info:
+      - setup.py
