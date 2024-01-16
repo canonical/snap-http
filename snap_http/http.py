@@ -3,10 +3,9 @@ import json
 import socket
 from http.client import HTTPResponse
 from io import BytesIO
-from typing import Any, Dict, List, Optional
-from uuid import uuid4
+from typing import Any, Optional
 
-from .types import FileUpload, SnapdResponse
+from .types import JsonData, SnapdRequestBody, SnapdResponse
 
 BASE_URL = "http://localhost/v2"
 SNAPD_SOCKET = "/run/snapd.socket"
@@ -23,14 +22,14 @@ def get(path: str) -> SnapdResponse:
     return SnapdResponse.from_http_response(response)
 
 
-def post(path: str, body: Dict[str, Any]) -> SnapdResponse:
+def post(path: str, body: SnapdRequestBody) -> SnapdResponse:
     """Perform a POST request of `path`, JSON-ifying `body`."""
     response = _make_request(path, "POST", body)
 
     return SnapdResponse.from_http_response(response)
 
 
-def put(path: str, body: Dict[str, Any]) -> SnapdResponse:
+def put(path: str, body: SnapdRequestBody) -> SnapdResponse:
     """Perform a PUT request of `path`, JSON-ifying `body`."""
     response = _make_request(path, "PUT", body)
 
@@ -38,11 +37,7 @@ def put(path: str, body: Dict[str, Any]) -> SnapdResponse:
 
 
 def _make_request(
-    path: str,
-    method: str,
-    body: Optional[Dict[str, Any]] = None,
-    form_data: Optional[Dict[str, Any]] = None,
-    files: Optional[List[FileUpload]] = None,
+    path: str, method: str, body: Optional[SnapdRequestBody] = None
 ) -> Any:
     """Performs a request to `path` using `method`, including `body`, if provided.
 
@@ -56,46 +51,21 @@ def _make_request(
     response = HTTPResponse(sock, method=method, url=url)
 
     request = BytesIO()
-    request_str = f"{method} {url} HTTP/1.1\r\nHost: localhost\r\n"
+    request.write(f"{method} {url} HTTP/1.1\r\nHost: localhost\r\n".encode())
 
     if body:
-        json_body = json.dumps(body)
-        encoded_length = len(json_body.encode())
-        request_str += "Content-Type: application/json\r\n"
-        request_str += f"Content-Length: {encoded_length}\r\n\r\n{json_body}"
-        request.write(request_str.encode())
-    elif form_data or files:
-        form_data = form_data or {}
-        payload, boundary = BytesIO(), str(uuid4())
-        for key, value in form_data.items():
-            payload.write(
-                (
-                    f"--{boundary}\r\n"
-                    f"Content-Disposition: form-data; name=\"{key}\"\r\n\r\n"
-                    f"{value}\r\n"
-                ).encode()
-            )
+        if isinstance(body, dict):
+            body = JsonData(body)
 
-        files = files or []
-        for file in files:
-            payload.write(
-                (
-                    f"--{boundary}\r\n"
-                    f'Content-Disposition: form-data; name="{file.name}"; filename="{file.filename}"'
-                    "\r\n\r\n"
-                ).encode()
-            )
-            payload.write(file.content)
-            payload.write(b"\r\n")
-        payload.write(f"--{boundary}--\r\n".encode())
-
-        request_str += f"Content-Type: multipart/form-data; boundary={boundary}\r\n"
-        request_str += f"Content-Length: {payload.getbuffer().nbytes}\r\n\r\n"
-        request.write(request_str.encode())
-        request.write(payload.getvalue())
+        request.write(
+            (
+                f"Content-Type: {body.content_type_header}\r\n"
+                f"Content-Length: {body.content_length}\r\n\r\n"
+            ).encode()
+        )
+        request.write(body.serialized)
     else:
-        request_str += "\r\n"
-        request.write(request_str.encode())
+        request.write(b"\r\n")
 
     sock.sendall(request.getvalue())
 

@@ -34,12 +34,9 @@ def is_snap_installed(snap_name: str) -> bool:
 @wait_for
 def sideload_snap(file_path: str) -> bool:
     """Sideload a snap from the local filesystem."""
-    form_data = {"action": "install", "devmode": "true"}
-    file = snap_http.types.FileUpload(name="snap", path=file_path)
+    data = {"action": "install", "devmode": "true"}
+    file = snap_http.FileUpload(name="snap", path=file_path)
     response = snap_http.http._make_request(
-        "/snaps",
-        "POST",
-        form_data=form_data,
-        files=[file],
+        "/snaps", "POST", body=snap_http.FormData(data=data, files=[file])
     )
     return snap_http.SnapdResponse.from_http_response(response)

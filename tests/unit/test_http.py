@@ -183,12 +183,10 @@ def test_making_multipart_request(use_snapd_response, monkeypatch):
     receiver, thread = use_snapd_response(202, mock_response)
 
     with tempfile.NamedTemporaryFile() as tmp:
+        data = {"action": "install", "devmode": "true"}
         file = types.FileUpload(name="snap", path=tmp.name)
-        result = http._make_request(
-            "/snaps",
-            "POST",
-            form_data={"action": "install"},
-            files=[file],
+        result =http._make_request(
+            "/snaps", "POST", body=types.FormData(data=data, files=[file])
         )
 
     assert result == mock_response

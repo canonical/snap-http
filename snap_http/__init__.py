@@ -32,4 +32,7 @@ from .types import (
     SUCCESS_STATUSES,
     ERROR_STATUSES,
     SnapdResponse,
+    FormData,
+    JsonData,
+    FileUpload,
 )
