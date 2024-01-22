@@ -3,7 +3,8 @@ import json
 import socket
 from http.client import HTTPResponse
 from io import BytesIO
-from typing import Any, Optional
+from typing import Any, Dict, Optional
+from urllib.parse import urlencode
 
 from .types import JsonData, SnapdRequestBody, SnapdResponse
 
@@ -15,29 +16,33 @@ class SnapdHttpException(Exception):
     """An exception raised during HTTP communication with snapd."""
 
 
-def get(path: str) -> SnapdResponse:
+def get(path: str, **kwargs: Any) -> SnapdResponse:
     """Peform a GET request of `path`."""
-    response = _make_request(path, "GET")
+    response = _make_request(path, "GET", **kwargs)
 
     return SnapdResponse.from_http_response(response)
 
 
 def post(path: str, body: SnapdRequestBody) -> SnapdResponse:
     """Perform a POST request of `path`, JSON-ifying `body`."""
-    response = _make_request(path, "POST", body)
+    response = _make_request(path, "POST", body=body)
 
     return SnapdResponse.from_http_response(response)
 
 
 def put(path: str, body: SnapdRequestBody) -> SnapdResponse:
     """Perform a PUT request of `path`, JSON-ifying `body`."""
-    response = _make_request(path, "PUT", body)
+    response = _make_request(path, "PUT", body=body)
 
     return SnapdResponse.from_http_response(response)
 
 
 def _make_request(
-    path: str, method: str, body: Optional[SnapdRequestBody] = None
+    path: str,
+    method: str,
+    *,
+    body: Optional[SnapdRequestBody] = None,
+    query_params: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """Performs a request to `path` using `method`, including `body`, if provided.
 
@@ -45,9 +50,12 @@ def _make_request(
     connection, then hand it off to `HTTPResponse` to read from and parse.
     """
     sock = socket.socket(family=socket.AF_UNIX)
-
     sock.connect(SNAPD_SOCKET)
+
     url = BASE_URL + path
+    if query_params:
+        url += "?" + urlencode(query_params)
+
     response = HTTPResponse(sock, method=method, url=url)
 
     request = BytesIO()

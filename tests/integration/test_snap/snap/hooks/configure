@@ -2,6 +2,7 @@
 
 DEFAULT_BAR="default"
 DEFAULT_BAZ="default"
+DEFAULT_PORT=8080
 
 bar="$(snapctl get foo.bar)"
 if [ -z "$bar" ]; then
@@ -13,5 +14,11 @@ if [ -z "$baz" ]; then
     baz="$DEFAULT_BAZ"
 fi
 
+port="$(snapctl get port)"
+if [ -z "$port"]; then
+    port="$DEFAULT_PORT"
+fi
+
 snapctl set foo.bar="$bar"
 snapctl set foo.baz="$baz"
+snapctl set port="$port"
