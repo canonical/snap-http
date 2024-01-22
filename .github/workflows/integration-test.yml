@@ -28,6 +28,7 @@ jobs:
           sudo snap install snapcraft --classic
           cd tests/integration/test_snap
           snapcraft --destructive-mode
+          snap download hello-world --basename=hello-world
           cd $GITHUB_WORKSPACE
       - name: integration test
         run: sudo poetry run pytest tests/integration
