@@ -16,7 +16,12 @@ INCOMPLETE_STATUSES = {"Do", "Doing", "Undo", "Undoing"}
 SUCCESS_STATUSES = {"Done"}
 ERROR_STATUSES = {"Error", "Hold", "Unknown"}
 
-SnapdRequestBody = Union[Dict[str, Any], "JsonData", "FormData"]
+SnapdRequestBody = Union[
+    Dict[str, Any],
+    "JsonData",
+    "FormData",
+    "AssertionData",
+]
 
 
 @dataclass
@@ -121,6 +126,21 @@ class FormData(AbstractRequestBody):
     def content_type_header(self) -> str:
         """Get the content type header value."""
         return f"{self.content_type}; boundary={self.boundary}"
+
+
+class AssertionData(AbstractRequestBody):
+    """A `SnapdRequestBody` for an assertion payload."""
+
+    content_type = "application/x.ubuntu.assertion"
+
+    def __init__(self, assertion: str):
+        """Initialize the class with `data`."""
+        self.assertion = assertion
+
+    @cached_property
+    def serialized(self) -> bytes:
+        """Serialize the assertion to bytes."""
+        return self.assertion.encode()
 
 
 @dataclass

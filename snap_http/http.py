@@ -1,7 +1,7 @@
 """Lower-level functions for making actual HTTP requests to snapd's REST API."""
 import json
 import socket
-from http.client import HTTPResponse
+from http.client import HTTPResponse, responses
 from io import BytesIO
 from typing import Any, Dict, Optional
 from urllib.parse import urlencode
@@ -86,4 +86,15 @@ def _make_request(
     if response.status >= 400:
         raise SnapdHttpException(response_body)
 
-    return json.loads(response_body)
+    response_type = response.getheader("Content-Type")
+    if response_type == "application/json":
+        return json.loads(response_body)
+    else:  # other types like application/x.ubuntu.assertion
+        response_code = response.getcode()
+        is_async = response_code == 202
+        return {
+            "type": "async" if is_async else "sync",
+            "status_code": response_code,
+            "status": responses[response_code],
+            "result": response_body,
+        }
