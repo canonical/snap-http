@@ -1,3 +1,5 @@
+import tempfile
+
 import pytest
 
 from snap_http import api, http, types
@@ -430,6 +432,197 @@ def test_install_all_exception(monkeypatch):
 
     with pytest.raises(http.SnapdHttpException):
         _ = api.install_all(["placeholder1", "placeholder2"])
+
+
+def test_sideload_snap(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install"}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name])
+
+    assert result == mock_response
+
+
+def test_sideload_with_classic_confinement(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when sideloading with classic confinement."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install", "classic": True}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name], classic=True)
+
+    assert result == mock_response
+
+
+def test_sideload_dangerous_snap(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when sideloading in dangerous mode."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install", "dangerous": True}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name], dangerous=True)
+
+    assert result == mock_response
+
+
+def test_sideload_snap_with_devmode_confinement(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when sideloading in devmode confinement."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install", "devmode": True}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name], devmode=True)
+
+    assert result == mock_response
+
+
+def test_sideload_snap_with_enforced_confinement(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when sideloading with enforced confinement."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install", "jailmode": True}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name], jailmode=True)
+
+    assert result == mock_response
+
+
+def test_sideload_snap_restart_system(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when a system restart is required."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install", "system-restart-immediate": True}
+        assert len(body.files) == 1
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        result = api.sideload([tmp.name], system_restart_immediate=True)
+
+    assert result == mock_response
+
+
+def test_sideload_multiple_snaps(monkeypatch):
+    """`api.sideload` returns a `types.SnapdResponse` when sideloading multiple snaps."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install"}
+        assert len(body.files) == 2
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp1, tempfile.NamedTemporaryFile() as tmp2:
+        result = api.sideload([tmp1.name, tmp2.name])
+
+    assert result == mock_response
+
+
+def test_sideload_snap_exception(monkeypatch):
+    """`api.sideload` raises a `http.SnapHttpException`."""
+
+    def mock_post(path, body: types.FormData):
+        assert path == "/snaps"
+        assert body.data == {"action": "install"}
+        assert len(body.files) == 1
+
+        raise http.SnapdHttpException()
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with tempfile.NamedTemporaryFile() as tmp, pytest.raises(http.SnapdHttpException):
+        api.sideload([tmp.name])
 
 
 def test_revert(monkeypatch):

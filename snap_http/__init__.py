@@ -9,6 +9,7 @@ from .api import (
     hold_all,
     install,
     install_all,
+    sideload,
     refresh,
     refresh_all,
     revert,

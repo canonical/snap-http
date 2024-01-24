@@ -8,7 +8,7 @@ Permissions are based on the user calling the API, most mutative interactions
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from . import http
-from .types import SnapdResponse
+from .types import FileUpload, FormData, SnapdResponse
 
 
 def check_change(cid: str) -> SnapdResponse:
@@ -107,6 +107,50 @@ def install_all(names: List[str]) -> SnapdResponse:
     confinement.
     """
     return http.post("/snaps", {"action": "install", "snaps": names})
+
+
+def sideload(
+    file_paths: List[str],
+    *,
+    classic: bool = False,
+    dangerous: bool = False,
+    devmode: bool = False,
+    jailmode: bool = False,
+    system_restart_immediate: bool = False,
+) -> SnapdResponse:
+    """Sideload a snap from the local filesystem.
+
+    :param file_paths: Paths to the snap files to install.
+    :param classic: if true, put snaps in classic mode and disable
+        security confinement
+    :param dangerous: if true, install the given snap files even if there are
+        no pre-acknowledged signatures for them
+    :param devmode: if true, put snaps in development mode and disable
+        security confinement
+    :param jailmode: if true, put snaps in enforced confinement mode
+    :param system_restart_immediate: if true, makes any system restart,
+        immediately and without delay (requires snapd 2.52)
+    """
+    data: Dict[str, Union[str, bool]] = {"action": "install"}
+
+    if classic:
+        data["classic"] = classic
+
+    if dangerous:
+        data["dangerous"] = dangerous
+
+    if devmode:
+        data["devmode"] = devmode
+
+    if jailmode:
+        data["jailmode"] = jailmode
+
+    if system_restart_immediate:
+        data["system-restart-immediate"] = system_restart_immediate
+
+    files = [FileUpload(name="snap", path=file_path) for file_path in file_paths]
+
+    return http.post("/snaps", FormData(data=data, files=files))
 
 
 def refresh(

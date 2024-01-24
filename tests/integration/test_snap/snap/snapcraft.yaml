@@ -9,7 +9,7 @@ grade: devel
 confinement: devmode
 
 apps:
-  pocketses:
+  test-snap:
     command: bin/test-snap
 
 parts:
