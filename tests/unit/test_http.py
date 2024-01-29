@@ -100,6 +100,30 @@ def test_get_exception(use_snapd_response, monkeypatch):
         _ = http.get("/snaps/placeholder")
 
 
+def test_get_with_query_params(use_snapd_response, monkeypatch):
+    """`http.get` returns a `types.SnapdResponse`."""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "sync",
+        "status_code": 200,
+        "status": "OK",
+        "result": {"foo.bar": "default", "port": 8080},
+    }
+    receiver, thread = use_snapd_response(202, mock_response)
+
+    result = http.get(
+        "/snaps/placeholder/conf",
+        query_params={"keys": "foo.bar,port"},
+    )
+
+    assert result == types.SnapdResponse.from_http_response(mock_response)
+    assert_request_contains(
+        receiver,
+        thread,
+        "/snaps/placeholder/conf?keys=foo.bar%2Cport",
+    )
+
+
 def test_post(use_snapd_response, monkeypatch):
     """`http.post` returns a `types.SnapdResponse`."""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
@@ -185,7 +209,7 @@ def test_making_multipart_request(use_snapd_response, monkeypatch):
     with tempfile.NamedTemporaryFile() as tmp:
         data = {"action": "install", "devmode": "true"}
         file = types.FileUpload(name="snap", path=tmp.name)
-        result =http._make_request(
+        result = http._make_request(
             "/snaps", "POST", body=types.FormData(data=data, files=[file])
         )
 
