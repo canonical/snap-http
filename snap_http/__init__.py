@@ -23,6 +23,9 @@ from .api import (
     list,
     get_conf,
     set_conf,
+    get_assertion_types,
+    get_assertions,
+    add_assertion,
 )
 
 from .http import SnapdHttpException
@@ -35,5 +38,6 @@ from .types import (
     SnapdResponse,
     FormData,
     JsonData,
+    AssertionData,
     FileUpload,
 )

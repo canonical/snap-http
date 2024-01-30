@@ -27,13 +27,18 @@ def use_snapd_response():
 
     thread = None
 
-    def run_snapd_thread(code, response_body):
-        json_body = json.dumps(response_body)
-        encoded_length = len(json_body.encode())
+    def run_snapd_thread(code, response_body, result_type="application/json"):
+        if result_type == "application/json":
+            body = json.dumps(response_body)
+            encoded_length = len(body.encode())
+        else:
+            encoded_length = len(response_body)
+            body = response_body.decode()
+
         http_response = (
             f"HTTP/1.1 {code}\r\n"
-            "Content-Type: application/json\r\n"
-            f"Content-Length: {encoded_length}\r\n\r\n{json_body}"
+            f"Content-Type: {result_type}\r\n"
+            f"Content-Length: {encoded_length}\r\n\r\n{body}"
         )
 
         receiver = io.BytesIO()
@@ -121,6 +126,26 @@ def test_get_with_query_params(use_snapd_response, monkeypatch):
         receiver,
         thread,
         "/snaps/placeholder/conf?keys=foo.bar%2Cport",
+    )
+
+
+def test_get_non_json_data(use_snapd_response, monkeypatch):
+    """`http.get` returns a `types.SnapdResponse.`"""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = b"assertion-header: value\n\nsignature"
+    use_snapd_response(
+        200,
+        mock_response,
+        "application/x.ubuntu.assertion",
+    )
+
+    result = http.get("/assertions/serial")
+
+    assert result == types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=b"assertion-header: value\n\nsignature",
     )
 
 

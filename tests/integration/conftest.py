@@ -1,10 +1,18 @@
+from typing import Dict
+
 import pytest
 
 import snap_http
-
-from tests.utils import is_snap_installed, wait_for
+from tests.utils import is_snap_installed, remove_assertion, wait_for
 
 TEST_SNAPS = ["test-snap", "hello-world"]
+
+HELLO_WORLD_SNAP_DECLARATION_ASSERTION = {
+    "assertion_type": "snap-declaration",
+    "snap_id": "buPKUD3TKqCOgLEjjHx5kSiCpIs5cMuQ",
+    "series": "16",
+}
+TEST_ASSERTIONS = [HELLO_WORLD_SNAP_DECLARATION_ASSERTION]
 
 
 def pytest_configure():
@@ -14,6 +22,10 @@ def pytest_configure():
     for snap in TEST_SNAPS:
         if snap in installed:
             wait_for(snap_http.remove)(snap)
+
+    # remove test assertions if they exist
+    for assertion in TEST_ASSERTIONS:
+        remove_assertion(**assertion)
 
 
 @pytest.fixture
@@ -37,3 +49,13 @@ def test_snap(local_test_snap_path):
     # teardown
     if is_snap_installed("test-snap"):
         wait_for(snap_http.remove)("test-snap")
+
+
+@pytest.fixture
+def hello_world_snap_declaration_assertion() -> (str, Dict[str, str]):
+    path = "tests/integration/assets/hello_world_snap_declaration.assert"
+    with open(path, "r") as f:
+        yield (f.read(), HELLO_WORLD_SNAP_DECLARATION_ASSERTION)
+
+    # teardown
+    remove_assertion(**HELLO_WORLD_SNAP_DECLARATION_ASSERTION)

@@ -101,3 +101,10 @@ def test_reading_file_uploads():
         file = types.FileUpload("snap", tmp.name)
         assert file.content == b"the answer is 42"
         assert file.filename == tmp.name.split("/")[-1]
+
+
+def test_assertion_data_serialization():
+    """Test serialization of assertion data."""
+    body = types.AssertionData("assertion-header: value\n\nsignature")
+    assert body.content_type == "application/x.ubuntu.assertion"
+    assert body.serialized == b"assertion-header: value\n\nsignature"

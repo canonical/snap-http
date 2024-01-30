@@ -1,6 +1,12 @@
 import snap_http
 
-from tests.utils import get_snap_details, is_snap_installed, wait_for
+from tests.utils import (
+    assertion_exists,
+    get_snap_details,
+    is_snap_installed,
+    remove_assertion,
+    wait_for,
+)
 
 
 # configuration: get and set snap options
@@ -134,7 +140,7 @@ def test_list_snaps():
     assert "snapd" in installed_snaps
 
 
-def test_install_snap_from_the_store():
+def test_install_snap_from_the_store(hello_world_snap_declaration_assertion):
     """Test installing a snap from the store."""
     assert is_snap_installed("hello-world") is False
 
@@ -143,6 +149,7 @@ def test_install_snap_from_the_store():
     assert is_snap_installed("hello-world") is True
 
     wait_for(snap_http.remove)("hello-world")
+    remove_assertion(**hello_world_snap_declaration_assertion[1])
 
 
 def test_remove_snap(test_snap):
@@ -154,10 +161,16 @@ def test_remove_snap(test_snap):
     assert is_snap_installed("test-snap") is False
 
 
-def test_sideload_snap_no_flags(local_hello_world_snap_path):
+def test_sideload_snap_no_flags(
+    local_hello_world_snap_path,
+    hello_world_snap_declaration_assertion,
+):
     """Test sideloading a snap with no flags specified."""
     assert is_snap_installed("hello-world") is False
 
+    # ack the assertion
+    snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+    # sideload
     response = wait_for(snap_http.sideload)(
         file_paths=[local_hello_world_snap_path],
     )
@@ -210,10 +223,16 @@ def test_sideload_dangerous_snap(local_hello_world_snap_path):
     wait_for(snap_http.remove)("hello-world")
 
 
-def test_sideload_snap_with_enforced_confinement(local_hello_world_snap_path):
+def test_sideload_snap_with_enforced_confinement(
+    local_hello_world_snap_path,
+    hello_world_snap_declaration_assertion,
+):
     """Test sideloading a snap with enforced confinement."""
     assert is_snap_installed("hello-world") is False
 
+    # ack the assertion
+    snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+    # sideload
     response = wait_for(snap_http.sideload)(
         file_paths=[local_hello_world_snap_path],
         jailmode=True,
@@ -232,11 +251,15 @@ def test_sideload_snap_with_enforced_confinement(local_hello_world_snap_path):
 def test_sideload_multiple_snaps(
     local_test_snap_path,
     local_hello_world_snap_path,
+    hello_world_snap_declaration_assertion,
 ):
     """Test sideloading multiple snaps."""
     assert is_snap_installed("test-snap") is False
     assert is_snap_installed("hello-world") is False
 
+    # ack the assertion
+    snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+    # sideload
     response = wait_for(snap_http.sideload)(
         file_paths=[local_test_snap_path, local_hello_world_snap_path],
         devmode=True,
@@ -247,3 +270,55 @@ def test_sideload_multiple_snaps(
     assert is_snap_installed("hello-world") is True
 
     wait_for(snap_http.remove_all)(["test-snap", "hello-world"])
+
+
+# Assertions: list and add assertions
+
+
+def test_get_assertion_types():
+    """Test getting assertion types."""
+    response = snap_http.get_assertion_types()
+    assert response.status_code == 200
+    types = response.result["types"]
+    assert len(types) > 0
+    assert "account" in types
+    assert "model" in types
+    assert "snap-declaration" in types
+    assert "store" in types
+
+
+def test_get_assertions():
+    """Test getting assertions."""
+    response = snap_http.get_assertions("snap-declaration")
+    assert response.status_code == 200
+    assert len(response.result) > 0
+    assert b"type: snap-declaration" in response.result
+
+
+def test_get_assertions_with_filters(hello_world_snap_declaration_assertion):
+    """Test getting assertions with filters."""
+    assertion, metadata = hello_world_snap_declaration_assertion
+
+    before = snap_http.get_assertions(
+        "snap-declaration", filters={"snap-id": metadata["snap_id"]}
+    )
+    assert before.result == b""
+
+    response = snap_http.add_assertion(assertion)
+    assert response.status_code == 200
+
+    after = snap_http.get_assertions(
+        "snap-declaration",
+        filters={"snap-id": metadata["snap_id"], "series": metadata["series"]},
+    )
+    assert after.result.decode() == assertion
+
+
+def test_add_an_assertion(hello_world_snap_declaration_assertion):
+    """Test adding an assertion."""
+    assertion, metadata = hello_world_snap_declaration_assertion
+    assert assertion_exists(**metadata) is False
+
+    response = snap_http.add_assertion(assertion)
+    assert response.status_code == 200
+    assert assertion_exists(**metadata) is True
