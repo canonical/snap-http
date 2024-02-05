@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+from time import sleep
+
+
+def hello():
+    print("Hello!")
+    sleep(60)
+
+
+if __name__ == "__main__":
+    hello()

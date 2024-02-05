@@ -11,6 +11,14 @@ confinement: devmode
 apps:
   test-snap:
     command: bin/test-snap
+  hello-svc:
+    command: bin/hello-svc
+    daemon: simple
+    install-mode: disable
+  bye-svc:
+    command: bin/bye-svc
+    daemon: simple
+    install-mode: disable
 
 parts:
   test-snap:
