@@ -26,6 +26,9 @@ from .api import (
     get_assertion_types,
     get_assertions,
     add_assertion,
+    list_users,
+    add_user,
+    remove_user,
 )
 
 from .http import SnapdHttpException

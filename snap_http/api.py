@@ -5,6 +5,7 @@ See https://snapcraft.io/docs/snapd-api for documentation of the API.
 Permissions are based on the user calling the API, most mutative interactions
 (install, refresh, etc) require root.
 """
+
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from . import http
@@ -319,3 +320,38 @@ def add_assertion(assertion: str) -> SnapdResponse:
     """
     body = AssertionData(assertion)
     return http.post("/assertions", body)
+
+
+# Users
+
+
+def list_users() -> SnapdResponse:
+    """Get information on user accounts."""
+    return http.get("/users")
+
+
+def add_user(
+    username: str,
+    email: str,
+    sudoer: bool = False,
+    known: bool = False,
+    force_managed: bool = False,
+    automatic: bool = False,
+) -> SnapdResponse:
+    """Create a local user."""
+    body = {
+        "action": "create",
+        "username": username,
+        "email": email,
+        "sudoer": sudoer,
+        "known": known,
+        "force-managed": force_managed,
+        "automatic": automatic,
+    }
+    return http.post("/users", body)
+
+
+def remove_user(username: str) -> SnapdResponse:
+    """Remove a local user."""
+    body = {"action": "remove", "username": username}
+    return http.post("/users", body)
