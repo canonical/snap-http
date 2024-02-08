@@ -37,6 +37,8 @@ class SnapdResponse:
     result: Union[Dict[str, Any], List[Any]]
     sources: Union[List[str], None] = None
     change: Union[str, None] = None
+    warning_timestamp: Union[str, None] = None
+    warning_count: Union[int, None] = None
 
     @classmethod
     def from_http_response(cls: Type, response: Dict[str, Any]) -> SnapdResponse:
