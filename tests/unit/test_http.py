@@ -27,13 +27,18 @@ def use_snapd_response():
 
     thread = None
 
-    def run_snapd_thread(code, response_body):
-        json_body = json.dumps(response_body)
-        encoded_length = len(json_body.encode())
+    def run_snapd_thread(code, response_body, result_type="application/json"):
+        if result_type == "application/json":
+            body = json.dumps(response_body)
+            encoded_length = len(body.encode())
+        else:
+            encoded_length = len(response_body)
+            body = response_body.decode()
+
         http_response = (
             f"HTTP/1.1 {code}\r\n"
-            "Content-Type: application/json\r\n"
-            f"Content-Length: {encoded_length}\r\n\r\n{json_body}"
+            f"Content-Type: {result_type}\r\n"
+            f"Content-Length: {encoded_length}\r\n\r\n{body}"
         )
 
         receiver = io.BytesIO()
@@ -100,6 +105,51 @@ def test_get_exception(use_snapd_response, monkeypatch):
         _ = http.get("/snaps/placeholder")
 
 
+def test_get_non_json_data(use_snapd_response, monkeypatch):
+    """`http.get` returns a `types.SnapdResponse.`"""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = b"assertion-header: value\n\nsignature"
+    use_snapd_response(
+        200,
+        mock_response,
+        "application/x.ubuntu.assertion",
+    )
+
+    result = http.get("/assertions/serial")
+
+    assert result == types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=b"assertion-header: value\n\nsignature",
+    )
+
+
+def test_get_returns_a_warning(use_snapd_response, monkeypatch):
+    """`http.get` returns a `types.SnapdResponse.`"""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "sync",
+        "status-code": 200,
+        "status": "OK",
+        "result": [],
+        "warning-timestamp": "2024-02-08T10:05:14.471969021Z",
+        "warning-count": 1,
+    }
+    use_snapd_response(200, mock_response)
+
+    result = http.get("/users")
+
+    assert result == types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=[],
+        warning_timestamp="2024-02-08T10:05:14.471969021Z",
+        warning_count=1,
+    )
+
+
 def test_post(use_snapd_response, monkeypatch):
     """`http.post` returns a `types.SnapdResponse`."""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
@@ -157,17 +207,38 @@ def test_put_exception(use_snapd_response, monkeypatch):
     """`http.put` raises a `http.SnapdHttpException` for error response codes."""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
     mock_response = {
-        "type": "sync",
+        "type": "error",
         "status_code": 404,
         "status": "Not Found",
-        "result": None,
+        "result": {
+            "message": 'snap "placeholder" is not installed',
+            "kind": "snap-not-found",
+            "value": "placeholder",
+        },
     }
     receiver, thread = use_snapd_response(404, mock_response)
 
-    with pytest.raises(http.SnapdHttpException):
-        _ = http.put("/snaps/placeholder/set_conf", {"foo": "bar"})
+    with pytest.raises(http.SnapdHttpException) as e:
+        http.put("/snaps/placeholder/conf", {"foo": "bar"})
 
     assert_request_contains(receiver, thread, '{"foo": "bar"}')
+    assert e.value.json == {
+        "type": "error",
+        "status_code": 404,
+        "status": "Not Found",
+        "result": {
+            "message": 'snap "placeholder" is not installed',
+            "kind": "snap-not-found",
+            "value": "placeholder",
+        }
+    }
+
+
+def test_parse_snap_exception_body_no_args():
+    """`SnapdHttpException.json` returns `None`."""
+    exception = http.SnapdHttpException()
+
+    assert exception.json is None
 
 
 def test_making_multipart_request(use_snapd_response, monkeypatch):
@@ -185,7 +256,7 @@ def test_making_multipart_request(use_snapd_response, monkeypatch):
     with tempfile.NamedTemporaryFile() as tmp:
         data = {"action": "install", "devmode": "true"}
         file = types.FileUpload(name="snap", path=tmp.name)
-        result =http._make_request(
+        result = http._make_request(
             "/snaps", "POST", body=types.FormData(data=data, files=[file])
         )
 

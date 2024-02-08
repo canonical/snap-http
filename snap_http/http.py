@@ -1,9 +1,10 @@
 """Lower-level functions for making actual HTTP requests to snapd's REST API."""
 import json
 import socket
-from http.client import HTTPResponse
+from http.client import HTTPResponse, responses
 from io import BytesIO
-from typing import Any, Optional
+from functools import cached_property
+from typing import Any, Dict, Optional, Union
 
 from .types import JsonData, SnapdRequestBody, SnapdResponse
 
@@ -13,6 +14,16 @@ SNAPD_SOCKET = "/run/snapd.socket"
 
 class SnapdHttpException(Exception):
     """An exception raised during HTTP communication with snapd."""
+
+    @cached_property
+    def json(self) -> Union[Dict, None]:
+        """Attempts to parse the body of this exception as json."""
+        result = None
+        if self.args:
+            body = self.args[0]
+            result = json.loads(body)
+
+        return result
 
 
 def get(path: str) -> SnapdResponse:
@@ -78,4 +89,15 @@ def _make_request(
     if response.status >= 400:
         raise SnapdHttpException(response_body)
 
-    return json.loads(response_body)
+    response_type = response.getheader("Content-Type")
+    if response_type == "application/json":
+        return json.loads(response_body)
+    else:  # other types like application/x.ubuntu.assertion
+        response_code = response.getcode()
+        is_async = response_code == 202
+        return {
+            "type": "async" if is_async else "sync",
+            "status_code": response_code,
+            "status": responses[response_code],
+            "result": response_body,
+        }
