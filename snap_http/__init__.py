@@ -29,6 +29,13 @@ from .api import (
     list_users,
     add_user,
     remove_user,
+    get_apps,
+    start,
+    start_all,
+    stop,
+    stop_all,
+    restart,
+    restart_all,
 )
 
 from .http import SnapdHttpException

@@ -9,4 +9,8 @@ setup(
     entry_points={
         "console_scripts": ["test-snap=test_snap.main:main"],
     },
+    scripts=[
+        "test_snap/hello-svc",
+        "test_snap/bye-svc",
+    ],
 )
