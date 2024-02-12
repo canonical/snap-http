@@ -149,6 +149,31 @@ def test_get_non_json_data(use_snapd_response, monkeypatch):
     )
 
 
+def test_get_returns_a_warning(use_snapd_response, monkeypatch):
+    """`http.get` returns a `types.SnapdResponse.`"""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = {
+        "type": "sync",
+        "status-code": 200,
+        "status": "OK",
+        "result": [],
+        "warning-timestamp": "2024-02-08T10:05:14.471969021Z",
+        "warning-count": 1,
+    }
+    use_snapd_response(200, mock_response)
+
+    result = http.get("/users")
+
+    assert result == types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=[],
+        warning_timestamp="2024-02-08T10:05:14.471969021Z",
+        warning_count=1,
+    )
+
+
 def test_post(use_snapd_response, monkeypatch):
     """`http.post` returns a `types.SnapdResponse`."""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
@@ -206,17 +231,38 @@ def test_put_exception(use_snapd_response, monkeypatch):
     """`http.put` raises a `http.SnapdHttpException` for error response codes."""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
     mock_response = {
-        "type": "sync",
+        "type": "error",
         "status_code": 404,
         "status": "Not Found",
-        "result": None,
+        "result": {
+            "message": 'snap "placeholder" is not installed',
+            "kind": "snap-not-found",
+            "value": "placeholder",
+        },
     }
     receiver, thread = use_snapd_response(404, mock_response)
 
-    with pytest.raises(http.SnapdHttpException):
-        _ = http.put("/snaps/placeholder/set_conf", {"foo": "bar"})
+    with pytest.raises(http.SnapdHttpException) as e:
+        http.put("/snaps/placeholder/conf", {"foo": "bar"})
 
     assert_request_contains(receiver, thread, '{"foo": "bar"}')
+    assert e.value.json == {
+        "type": "error",
+        "status_code": 404,
+        "status": "Not Found",
+        "result": {
+            "message": 'snap "placeholder" is not installed',
+            "kind": "snap-not-found",
+            "value": "placeholder",
+        }
+    }
+
+
+def test_parse_snap_exception_body_no_args():
+    """`SnapdHttpException.json` returns `None`."""
+    exception = http.SnapdHttpException()
+
+    assert exception.json is None
 
 
 def test_making_multipart_request(use_snapd_response, monkeypatch):

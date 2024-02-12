@@ -1,9 +1,10 @@
 """Lower-level functions for making actual HTTP requests to snapd's REST API."""
 import json
 import socket
+from functools import cached_property
 from http.client import HTTPResponse, responses
 from io import BytesIO
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from urllib.parse import urlencode
 
 from .types import JsonData, SnapdRequestBody, SnapdResponse
@@ -14,6 +15,16 @@ SNAPD_SOCKET = "/run/snapd.socket"
 
 class SnapdHttpException(Exception):
     """An exception raised during HTTP communication with snapd."""
+
+    @cached_property
+    def json(self) -> Union[Dict, None]:
+        """Attempts to parse the body of this exception as json."""
+        result = None
+        if self.args:
+            body = self.args[0]
+            result = json.loads(body)
+
+        return result
 
 
 def get(path: str, **kwargs: Any) -> SnapdResponse:
