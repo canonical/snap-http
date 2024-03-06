@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1 (2024-03-06)
+
+### fix
+
+- Warnings from snapd are now captured and exposed via `SnapdHttpException.json` rather than raising
+  a `TypeError`
+
 ## 1.3.0 (2024-02-10)
 
 ### feature
