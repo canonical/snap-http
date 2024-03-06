@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.0 (2024-03-06)
+
+### feature
+
+- Added `get_apps` API for listing snap applications and services.
+- Added `start` and `start_all` APIs to start a snap services.
+- Added `stop` and `stop_all` APIs to stop snap services.
+- Added `restart` and `restart_all` APIs to restart snap services.
+
+### fix
+
+- Warnings from snapd are now captured and exposed via `SnapdHttpException.json` rather than raising
+  a `TypeError`
+
 ## 1.3.0 (2024-02-10)
 
 ### feature
