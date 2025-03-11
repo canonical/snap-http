@@ -1,4 +1,5 @@
 """Lower-level functions for making actual HTTP requests to snapd's REST API."""
+
 import json
 import socket
 from functools import cached_property
@@ -17,7 +18,7 @@ class SnapdHttpException(Exception):
     """An exception raised during HTTP communication with snapd."""
 
     @cached_property
-    def json(self) -> Union[Dict, None]:
+    def json(self) -> Union[Dict[str, Any], None]:
         """Attempts to parse the body of this exception as json."""
         result = None
         if self.args:

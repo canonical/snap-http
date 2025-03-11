@@ -254,7 +254,7 @@ def test_put_exception(use_snapd_response, monkeypatch):
             "message": 'snap "placeholder" is not installed',
             "kind": "snap-not-found",
             "value": "placeholder",
-        }
+        },
     }
 
 
