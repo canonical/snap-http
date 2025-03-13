@@ -1,5 +1,5 @@
 name: test-snap
-base: core22
+base: core24
 version: perpetual
 summary: A test snap
 description: |
