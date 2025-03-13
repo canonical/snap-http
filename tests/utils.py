@@ -7,7 +7,7 @@ import snap_http
 
 
 def wait_for(
-    func: Callable[..., snap_http.SnapdResponse]
+    func: Callable[..., snap_http.SnapdResponse],
 ) -> Callable[..., snap_http.SnapdResponse]:
     """Call `func` and wait for changes to be applied in snapd."""
 

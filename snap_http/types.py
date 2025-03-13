@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 from uuid import uuid4
 
-
 # For the below, refer to https://snapcraft.io/docs/snapd-api#heading--changes
 COMPLETE_STATUSES = {"Done", "Error", "Hold", "Abort"}
 INCOMPLETE_STATUSES = {"Do", "Doing", "Undo", "Undoing"}
@@ -41,7 +40,9 @@ class SnapdResponse:
     warning_count: Union[int, None] = None
 
     @classmethod
-    def from_http_response(cls: Type, response: Dict[str, Any]) -> SnapdResponse:
+    def from_http_response(
+        cls: Type["SnapdResponse"], response: Dict[str, Any]
+    ) -> SnapdResponse:
         return cls(**{k.replace("-", "_"): v for k, v in response.items()})
 
 
