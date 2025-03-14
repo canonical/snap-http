@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0 (2025-03-14)
+
+### feature
+
+- Added `get_connections` API for listing snap slots and plugs.
+- Added `get_interfaces`, `connect_interface`, and `disconnect_interfaces` APIs for managing snap
+  interface access/permissions
+
 ## 1.4.0 (2024-03-06)
 
 ### feature
