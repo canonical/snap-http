@@ -7,7 +7,7 @@ jobs:
   snapd_integration_test:
     strategy:
       matrix:
-        os: ["ubuntu-22.04", "ubuntu-20.04"]
+        os: ["ubuntu-24.04", "ubuntu-22.04"]
     runs-on: ${{ matrix.os }}
     steps:
         # Access to the snapd socket requires root privileges, so these
@@ -23,11 +23,13 @@ jobs:
         run: |
           sudo apt install -y snapd
           sudo systemctl start snapd.service
+      - name: LXD setup
+        uses: canonical/setup-lxd@main
       - name: build test_snap
         run: |
           sudo snap install snapcraft --classic
           cd tests/integration/test_snap
-          snapcraft --destructive-mode
+          snapcraft
           snap download hello-world --basename=hello-world
           cd $GITHUB_WORKSPACE
       - name: integration test
