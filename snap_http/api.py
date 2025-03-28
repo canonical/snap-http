@@ -389,6 +389,65 @@ def disconnect_interface(
     return http.post("/interfaces", body=disconnect_action_body)
 
 
+# Model: get model and remodel
+
+def get_model() -> SnapdResponse:
+    """
+    GETs the active model assertion of system.
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    return http.get("/model")
+
+def remodel(new_model_assertion: str, offline: bool = False) -> SnapdResponse:
+    """
+    Replace the current model assertion of system
+    :param new_model_assertion: New model assertion content
+    :param offline: enables offline remodelling
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    body = {"new-model" : new_model_assertion, "offline": offline}
+    return http.post("/model", body=body)
+
+
+# Validation sets: list/refresh validation sets
+
+def get_validation_sets() -> SnapdResponse:
+    """
+    GET all enabled validation sets
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    return http.get("/validation-sets")
+
+def get_validation_set(account_id: str, validation_set_name: str) -> SnapdResponse:
+    """
+    GET specific validation set
+    :param account_id:  Identifier for the developer account (creator of the validation-set).
+    :param validation_set_name: Name of the validation set.
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    return http.get(f"/validation-sets/{account_id}/{validation_set_name}")
+
+def refresh_validation_set(account_id: str, validation_set_name: str, validation_set_sequence: Optional[int]) -> SnapdResponse:
+    """
+    Refresh validation set of system
+    :param account_id:  Identifier for the developer account (creator of the validation-set).
+    :param validation_set_name: Name of the validation set.
+    :param validation_set_sequence: Sequence value of the validation set
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    validation_set_str = f"{account_id}/{validation_set_name}"
+    if validation_set_sequence:
+        validation_set_str += f"={validation_set_sequence}"
+
+    body = {
+        "action": "refresh",
+        "validation-sets": [
+            validation_set_str
+        ],
+    }
+    return http.post("/snaps", body=body)
+
+
 # Assertions: list and add assertions
 
 
