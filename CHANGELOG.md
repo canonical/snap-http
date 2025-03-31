@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0 (2025-03-31)
+
+### feature
+
+- Added `get_model` and `remodel` APIs for retrieving and replacing the system model assertion.
+- Added `get_validation_set`, `get_validation_sets`, and `refresh_validation_set` for managing
+  snap validation sets.
+
 ## 1.5.0 (2025-03-14)
 
 ### feature
