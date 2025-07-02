@@ -4,6 +4,7 @@ import time
 from typing import Any, Callable, Dict
 
 import snap_http
+import json
 
 
 def wait_for(
@@ -38,9 +39,13 @@ def is_snap_installed(snap_name: str) -> bool:
 
 def is_snap_purged(snap_name: str) -> bool:
     """Check if the snap with name `snap_name` is purged."""
+    # Iterate over all results and collect all snapshots
+    snapshots = []
+    for result in snap_http.snapshots().result:
+        snapshots.extend(result.get("snapshots", []))
     return snap_name not in {
-        snap["name"]
-        for snap in snap_http.snapshots().result
+        snapshot["snap"]
+        for snapshot in snapshots
     } and snap_name not in {
         snap["name"]
         for snap in snap_http.list_all().result
