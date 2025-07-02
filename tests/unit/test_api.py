@@ -832,7 +832,7 @@ def test_snapshots(monkeypatch):
         result=None,
     )
 
-    def mock_post(path, body):
+    def mock_post(path):
         assert path == "/snapshots"
 
         return mock_response
