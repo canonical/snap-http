@@ -823,6 +823,29 @@ def test_remove_all_exception(monkeypatch):
         _ = api.remove_all(["placeholder1", "placeholder2"])
 
 
+def test_snapshots(monkeypatch):
+    """`api.snapshots` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=None,
+        change="1",
+    )
+
+    def mock_post(path, body):
+        assert path == "/snapshots"
+        assert body == []
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    result = api.snapshots()
+
+    assert result == mock_response
+
+
 def test_switch(monkeypatch):
     """`api.switch` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
@@ -976,6 +999,27 @@ def test_list(monkeypatch):
     monkeypatch.setattr(http, "get", mock_get)
 
     result = api.list()
+
+    assert result == mock_response
+
+
+def test_list_all(monkeypatch):
+    """`api.list_all` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=[{"title": "placeholder1"}, {"title": "placeholder2"}],
+    )
+
+    def mock_get(path):
+        assert path == "/snaps?select=all"
+
+        return mock_response
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    result = api.list_all()
 
     assert result == mock_response
 
