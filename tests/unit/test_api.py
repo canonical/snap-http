@@ -837,7 +837,7 @@ def test_snapshots(monkeypatch):
 
         return mock_response
 
-    monkeypatch.setattr(http, "post", mock_post)
+    monkeypatch.setattr(http, "get", mock_get)
 
     result = api.snapshots()
 
