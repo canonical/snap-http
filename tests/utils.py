@@ -41,7 +41,8 @@ def is_snap_purged(snap_name: str) -> bool:
     # Iterate over all results and collect all snapshots
     snapshots = []
     for result in snap_http.snapshots().result:
-        snapshots.extend(result.get("snapshots", []))
+        if result:
+            snapshots.extend(result.get("snapshots", []))
     return snap_name not in {
         snapshot["snap"]
         for snapshot in snapshots
