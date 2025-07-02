@@ -229,6 +229,27 @@ def remove_all(names: List[str]) -> SnapdResponse:
     return http.post("/snaps", {"action": "remove", "snaps": names})
 
 
+def purge(name: str) -> SnapdResponse:
+    """Purge a snap identified by `name`."""
+    body = {
+        "action": "remove",
+        "purge": "true",
+        "terminate": "true",
+    }
+    return http.post("/snaps/" + name, body)
+
+
+def purge_all(names: List[str]) -> SnapdResponse:
+    """Purge all snaps identified in `names`."""
+    body = {
+        "action": "remove",
+        "snaps": names,
+        "purge": "true",
+        "terminate": "true",
+    }
+    return http.post("/snaps", body)
+
+
 def switch(name: str, *, channel: str = "stable") -> SnapdResponse:
     """Switches the tracking channel of snap `name`."""
     return http.post("/snaps/" + name, {"action": "switch", "channel": channel})
@@ -260,6 +281,24 @@ def list() -> SnapdResponse:
     This stomps on builtins.list, so please import it namespaced.
     """
     return http.get("/snaps")
+
+
+def list_all() -> SnapdResponse:
+    """GETs a list of snaps - including disabled ones.  
+    """
+    return http.get("/snaps?select=all")
+
+
+def snapshots() -> SnapdResponse:
+    """GETs a list of snapshots
+    """
+    return http.get("/snapshots")
+
+
+def forget_snapshot(id: int) -> SnapdResponse:
+    """ Deletes a snapshot by its id
+    """
+    return http.post("/snapshots", {"action": "forget", "set": id})
 
 
 # Configuration: get and set snap options
@@ -398,6 +437,7 @@ def get_model() -> SnapdResponse:
     """
     return http.get("/model")
 
+
 def remodel(new_model_assertion: str, offline: bool = False) -> SnapdResponse:
     """
     Replace the current model assertion of system
@@ -448,6 +488,8 @@ def refresh_validation_set(account_id: str, validation_set_name: str, validation
     return http.post("/snaps", body=body)
 
 # System: Get and perform action with recovery system
+
+
 def get_recovery_systems() -> SnapdResponse:
     """
     GET all recovery systems
@@ -468,7 +510,8 @@ def perform_system_action(action: str, mode: str)-> SnapdResponse:
     }
     return http.post("/systems", body=body)
 
-def perform_recovery_action(label: str, action: str, mode: str)-> SnapdResponse:
+
+def perform_recovery_action(label: str, action: str, mode: str) -> SnapdResponse:
     """
     Attempt to perform an action with the current active recovery system.
     :param label: Label to specify recovery system.

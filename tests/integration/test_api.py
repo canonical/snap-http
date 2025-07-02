@@ -4,6 +4,7 @@ from tests.utils import (
     assertion_exists,
     get_snap_details,
     is_snap_installed,
+    is_snap_purged,
     remove_assertion,
     wait_for,
 )
@@ -159,6 +160,15 @@ def test_remove_snap(test_snap):
     response = wait_for(snap_http.remove)("test-snap")
     assert response.status_code == 202
     assert is_snap_installed("test-snap") is False
+
+
+def test_purge_snap(test_snap):
+    """Test removing a snap."""
+    assert is_snap_installed("test-snap") is True
+
+    response = wait_for(snap_http.remove)("test-snap")
+    assert response.status_code == 202
+    assert is_snap_purged("test-snap") is True
 
 
 def test_sideload_snap_no_flags(
