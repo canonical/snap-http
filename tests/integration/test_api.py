@@ -143,8 +143,7 @@ def test_list_snaps():
 
 def test_snapshots():
     """Test listing snapshots."""
-    snapshots = {snap_http.snapshots()}
-    assert "OK" in snapshots.status
+    assert "OK" in snap_http.snapshots().status
 
 
 def test_list__all_snaps():
