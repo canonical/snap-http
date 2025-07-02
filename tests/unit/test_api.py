@@ -824,7 +824,7 @@ def test_remove_all_exception(monkeypatch):
 
 
 def test_snapshots(monkeypatch):
-    """`api.snapshots` returns a `types.SnapdResponse`."""
+    """`api.list` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
         type="sync",
         status_code=200,
@@ -832,7 +832,7 @@ def test_snapshots(monkeypatch):
         result=[],
     )
 
-    def mock_post(path):
+    def mock_get(path):
         assert path == "/snapshots"
 
         return mock_response
