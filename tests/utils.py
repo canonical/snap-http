@@ -4,7 +4,6 @@ import time
 from typing import Any, Callable, Dict
 
 import snap_http
-import json
 
 
 def wait_for(

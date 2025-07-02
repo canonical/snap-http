@@ -141,6 +141,12 @@ def test_list_snaps():
     assert "snapd" in installed_snaps
 
 
+def test_snapshots():
+    """Test listing snapshots."""
+    snapshots = {snap_http.snapshots()}
+    assert "OK" in snapshots.status
+
+
 def test_list__all_snaps():
     """Test listing snaps."""
     installed_snaps = {snap["name"] for snap in snap_http.list_all().result}
