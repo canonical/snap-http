@@ -233,8 +233,8 @@ def purge(name: str) -> SnapdResponse:
     """Purge a snap identified by `name`."""
     body = {
         "action": "remove",
-        "purge": "true",
-        "terminate": "true",
+        "purge": True,
+        "terminate": True,
     }
     return http.post("/snaps/" + name, body)
 
@@ -244,8 +244,8 @@ def purge_all(names: List[str]) -> SnapdResponse:
     body = {
         "action": "remove",
         "snaps": names,
-        "purge": "true",
-        "terminate": "true",
+        "purge": True,
+        "terminate": True,
     }
     return http.post("/snaps", body)
 
