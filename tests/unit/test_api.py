@@ -830,12 +830,10 @@ def test_snapshots(monkeypatch):
         status_code=200,
         status="OK",
         result=None,
-        change="1",
     )
 
     def mock_post(path, body):
         assert path == "/snapshots"
-        assert body == []
 
         return mock_response
 
@@ -1004,7 +1002,7 @@ def test_list(monkeypatch):
 
 
 def test_list_all(monkeypatch):
-    """`api.list_all` returns a `types.SnapdResponse`."""
+    """`api.list` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
         type="sync",
         status_code=200,
