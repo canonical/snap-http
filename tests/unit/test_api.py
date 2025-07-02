@@ -829,7 +829,7 @@ def test_snapshots(monkeypatch):
         type="sync",
         status_code=200,
         status="OK",
-        result=None,
+        result=[],
     )
 
     def mock_post(path):
