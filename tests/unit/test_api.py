@@ -842,7 +842,7 @@ def test_snapshots(monkeypatch):
     result = api.snapshots()
 
     assert result == mock_response
-
+    
 
 def test_switch(monkeypatch):
     """`api.switch` returns a `types.SnapdResponse`."""
