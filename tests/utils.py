@@ -36,6 +36,22 @@ def is_snap_installed(snap_name: str) -> bool:
     return snap_name in {snap["name"] for snap in snap_http.list().result}
 
 
+def is_snap_purged(snap_name: str) -> bool:
+    """Check if the snap with name `snap_name` is purged."""
+    # Iterate over all results and collect all snapshots
+    snapshots = []
+    for result in snap_http.snapshots().result:
+        if result:
+            snapshots.extend(result.get("snapshots", []))
+    return snap_name not in {
+        snapshot["snap"]
+        for snapshot in snapshots
+    } and snap_name not in {
+        snap["name"]
+        for snap in snap_http.list_all().result
+    }
+
+
 def get_snap_details(snap_name: str) -> Dict[str, Any]:
     """Get the details of an installed snap."""
     return next(

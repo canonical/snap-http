@@ -21,6 +21,7 @@ from .api import (
     unhold,
     unhold_all,
     list,
+    list_all,
     get_conf,
     set_conf,
     get_connections,
@@ -45,6 +46,10 @@ from .api import (
     stop_all,
     restart,
     restart_all,
+    purge,
+    purge_all,
+    snapshots,
+    forget_snapshot,
 )
 
 from .http import SnapdHttpException
