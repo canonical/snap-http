@@ -6,7 +6,6 @@
 - Added `list_all` API for listing all snaps.
 - Added `snapshots` and `forget_snapshots` for listing and forgetting snapshotsd
 
-
 ## 1.7.0 (2025-06-27)
 
 - Added `get_recovery_systems` API for listing snapd recovery systems.
