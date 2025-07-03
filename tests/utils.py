@@ -47,6 +47,7 @@ def is_snap_purged(snap_name: str) -> bool:
     snapshot = snap_name in {
         snapshot["snap"]
         for snapshot in snapshots
+    }
         
     return snapshot
 
