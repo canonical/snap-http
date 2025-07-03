@@ -48,7 +48,7 @@ def is_snap_purged(snap_name: str) -> bool:
         snapshot["snap"]
         for snapshot in snapshots
         
-    return {not installed} and {not snapshot}
+    return snapshot
 
 
 def get_snap_details(snap_name: str) -> Dict[str, Any]:
