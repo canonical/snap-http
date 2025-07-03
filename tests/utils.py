@@ -43,13 +43,12 @@ def is_snap_purged(snap_name: str) -> bool:
     for result in snap_http.snapshots().result:
         if result:
             snapshots.extend(result.get("snapshots", []))
-    return snap_name not in {
+    installed = is_snap_installed(snap_name)
+    snapshot = snap_name in {
         snapshot["snap"]
         for snapshot in snapshots
-    } and snap_name not in {
-        snap["name"]
-        for snap in snap_http.list_all().result
-    }
+        
+    return {not installed} and {not snapshot}
 
 
 def get_snap_details(snap_name: str) -> Dict[str, Any]:
