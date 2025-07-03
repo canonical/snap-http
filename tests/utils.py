@@ -43,7 +43,7 @@ def is_snap_purged(snap_name: str) -> bool:
     for result in snap_http.snapshots().result:
         if result:
             snapshots.extend(result.get("snapshots", []))
-    installed = is_snap_installed(snap_name)
+    #installed = is_snap_installed(snap_name)
     snapshot = snap_name in {
         snapshot["snap"]
         for snapshot in snapshots
