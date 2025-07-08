@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.0 (2025-07-08)
+
+ - Added purge and terminate options to `remove`
+ - Added `list_all` function
+ - Added snapshot functionality
+
+
 ## 1.7.0 (2025-06-27)
 
 - Added `get_recovery_systems` API for listing snapd recovery systems.

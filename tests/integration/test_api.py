@@ -140,6 +140,12 @@ def test_list_snaps():
     assert "snapd" in installed_snaps
 
 
+def test_list_all_snaps():
+    """Test listing snaps."""
+    installed_snaps = {snap["name"] for snap in snap_http.list_all().result}
+    assert "snapd" in installed_snaps
+
+
 def test_install_snap_from_the_store(hello_world_snap_declaration_assertion):
     """Test installing a snap from the store."""
     assert is_snap_installed("hello-world") is False
@@ -588,3 +594,29 @@ def test_reload_service(test_snap):
     assert apps[1]["name"] == "bye-svc"
     assert apps[1]["active"] is True
     assert "enabled" not in apps[1]
+
+
+def test_save_snapshot(test_snap):
+    """Test saving a snapshot."""
+    response = wait_for(snap_http.save_snapshot)(snaps=["snapd"])
+    assert response.status_code == 202
+
+    set_id = response.result["set-id"]
+    snapshots = snap_http.snapshots().result
+    assert any(shot['id'] == set_id for shot in snapshots)
+
+
+def test_forget_snapshot(test_snap):
+    """Test forgetting a snapshot."""
+    response = wait_for(snap_http.save_snapshot)(snaps=["snapd"])
+    assert response.status_code == 202
+
+    set_id = response.result["set-id"]
+    snapshots = snap_http.snapshots().result
+    assert any(shot['id'] == set_id for shot in snapshots)
+
+    response = wait_for(snap_http.forget_snapshot)(set_id)
+    assert response.status_code == 202
+
+    snapshots = snap_http.snapshots().result
+    assert not any(shot['id'] == set_id for shot in snapshots)
