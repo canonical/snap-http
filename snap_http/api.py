@@ -248,7 +248,7 @@ def forget_snapshot(id: str, snaps: Optional[List[str]] = None, users: Optional[
     :param snap_id: The ID of the snapshot to delete.
     """
 
-    body: Dict[str, Any] = {
+    body: Dict[str, Union[str, List[str]]] = {
         "action": "forget",
         "set": id
     }
@@ -271,11 +271,11 @@ def save_snapshot(
     :param users:  array of user names to whom snapshots are to be restricted .
     :param snaps: Optional list of snaps to include in the snapshot.
     """
-    body: Dict[str, Any] = {"action": "snapshot"}
+    body: dict[str, object] = {"action": "snapshot"}
 
-    if users:
+    if users is not None:
         body["users"] = users
-    if snaps:
+    if snaps is not None:
         body["snaps"] = snaps
 
     return http.post("/snaps", body)
@@ -315,9 +315,7 @@ def list() -> SnapdResponse:
 
 
 def list_all() -> SnapdResponse:
-    """GETs a list of installed snaps.
-
-    This stomps on builtins.list, so please import it namespaced.
+    """GETs a list of all installed snaps including disabled ones.
     """
     return http.get("/snaps?select=all")
 
