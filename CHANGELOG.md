@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.0 (2025-07-11)
+
+ - Added validation set functions
+
+
 ## 1.8.0 (2025-07-08)
 
  - Added purge and terminate options to `remove`

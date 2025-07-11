@@ -2,9 +2,9 @@ name: Lint and Test
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main,v1.9.0]
   push:
-    branches: [main]
+    branches: [main,v1.9.0]
 
 jobs:
   lint_and_typecheck:

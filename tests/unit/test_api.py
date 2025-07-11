@@ -1256,6 +1256,7 @@ def test_get_model(monkeypatch) -> None:
 
     assert result == mock_response
 
+
 def test_remodel(monkeypatch):
     """`api.remodel` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
@@ -1308,6 +1309,7 @@ def test_get_validation_set(monkeypatch) -> None:
 
     account_id: str = "device-platform"
     validation_set_name: str = "dev-validation-set"
+
     def mock_get(path):
         assert path == f"/validation-sets/{account_id}/{validation_set_name}"
         return mock_response
@@ -1317,6 +1319,7 @@ def test_get_validation_set(monkeypatch) -> None:
     result = api.get_validation_set(account_id, validation_set_name)
 
     assert result == mock_response
+
 
 def test_refresh_validation_set(monkeypatch) -> None:
     """`api.refresh_validation_set` returns a `types.SnapdResponse`."""
@@ -1330,6 +1333,7 @@ def test_refresh_validation_set(monkeypatch) -> None:
     account_id: str = "device-platform"
     validation_set_name: str = "dev-validation-set"
     validation_set_sequence: int = 12
+   
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {
@@ -1344,6 +1348,95 @@ def test_refresh_validation_set(monkeypatch) -> None:
     monkeypatch.setattr(http, "post", mock_post)
 
     result = api.refresh_validation_set(account_id, validation_set_name, validation_set_sequence)
+
+    assert result == mock_response
+
+
+def test_monitor_validation_set(monkeypatch) -> None:
+    """`api.refresh_validation_set` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result={},
+    )
+
+    account_id: str = "device-platform"
+    validation_set_name: str = "dev-validation-set"
+    validation_set_sequence: int = 12
+    
+    def mock_post(path, body):
+        assert path == f"/validation-sets/{account_id}/{validation_set_name}"
+        assert body == {
+                "action": "apply",
+                "mode": "monitor",
+                "sequence": validation_set_sequence
+                }
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    result = api.monitor_validation_set(account_id, validation_set_name, validation_set_sequence)
+
+    assert result == mock_response
+
+
+def test_enforce_validation_set(monkeypatch) -> None:
+    """`api.enforce_validation_set` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result={},
+    )
+
+    account_id: str = "device-platform"
+    validation_set_name: str = "dev-validation-set"
+    validation_set_sequence: int = 12
+    
+    def mock_post(path, body):
+        assert path == f"/validation-sets/{account_id}/{validation_set_name}"
+        assert body == {
+                "action": "apply",
+                "mode": "enforce",
+                "sequence": validation_set_sequence
+                }
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    result = api.enforce_validation_set(account_id, validation_set_name, validation_set_sequence)
+
+    assert result == mock_response
+
+
+def test_forget_validation_set(monkeypatch) -> None:
+    """`api.refresh_validation_set` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result={},
+    )
+
+    account_id: str = "device-platform"
+    validation_set_name: str = "dev-validation-set"
+    validation_set_sequence: int = 12
+
+    def mock_post(path, body):
+        assert path == f"/validation-sets/{account_id}/{validation_set_name}"
+        assert body == {
+                "action": "forget",
+                "sequence": validation_set_sequence
+                }
+
+        return mock_response
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    result = api.forget_validation_set(account_id, validation_set_name, validation_set_sequence)
 
     assert result == mock_response
 
@@ -1379,6 +1472,7 @@ def test_perform_system_action(monkeypatch) -> None:
 
     action: str = "do"
     mode: str = "recover"
+    
     def mock_post(path, body):
         assert path == "/systems"
         assert body == {
@@ -1394,6 +1488,7 @@ def test_perform_system_action(monkeypatch) -> None:
 
     assert result == mock_response
 
+
 def test_perform_recovery_action(monkeypatch) -> None:
     """`api.perform_recovery_action` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
@@ -1406,6 +1501,7 @@ def test_perform_recovery_action(monkeypatch) -> None:
     action: str = "do"
     mode: str = "recover"
     label: str = "20250410"
+    
     def mock_post(path, body):
         assert path == f"/systems/{label}"
         assert body == {
@@ -1420,7 +1516,6 @@ def test_perform_recovery_action(monkeypatch) -> None:
     result = api.perform_recovery_action(label, action, mode)
 
     assert result == mock_response
-
 
 
 def test_get_assertion_types(monkeypatch):
