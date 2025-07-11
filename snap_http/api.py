@@ -271,7 +271,7 @@ def save_snapshot(
     :param users:  array of user names to whom snapshots are to be restricted .
     :param snaps: Optional list of snaps to include in the snapshot.
     """
-    body: dict[str, object] = {"action": "snapshot"}
+    body: Dict[str, List[str]] = {"action": "snapshot"}
 
     if users is not None:
         body["users"] = users
