@@ -570,6 +570,13 @@ def get_recovery_systems() -> SnapdResponse:
     """
     return http.get("/systems")
 
+def get_recovery_system(label: str) -> SnapdResponse:
+    """
+    GET specific recovery system
+    :return: A SnapdResponse containing the response from the snapd API.
+    """
+    return http.get(f"/systems/{label}")
+
 
 def perform_system_action(action: str, mode: str)-> SnapdResponse:
     """

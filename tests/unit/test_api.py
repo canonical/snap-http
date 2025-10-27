@@ -1462,6 +1462,25 @@ def test_get_recovery_systems(monkeypatch) -> None:
 
     assert result == mock_response
 
+def test_get_recovery_system(monkeypatch) -> None:
+    """`api.get_recovery_system` returns a `types.SnapdResponse`."""
+    label="20251022"
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result={},
+    )
+
+    def mock_get(path):
+        assert path == f"/systems/{label}"
+        return mock_response
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    result = api.get_recovery_system(label)
+
+    assert result == mock_response
 
 def test_perform_system_action(monkeypatch) -> None:
     """`api.perform_system_action` returns a `types.SnapdResponse`."""
