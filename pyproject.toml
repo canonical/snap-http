@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "snap-http"
-version = "1.10.0"
+version = "1.10.1"
 description = "A library for interacting with snapd via its REST API."
 authors = ["Mitch Burton <mitch.burton@canonical.com>"]
 readme = "README.md"

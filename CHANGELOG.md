@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.1 (2025-10-27)
+
+ - Fix: add missing systems endpoints to public API
+
+
 ## 1.10.0 (2025-10-27)
 
  - Added `get_recovery_system` API for getting information about a specific recovery system.
