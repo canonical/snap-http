@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.0 (2025-10-27)
+
+ - Added `get_recovery_system` API for getting information about a specific recovery system.
+
+
 ## 1.9.0 (2025-07-11)
 
  - Added validation set functions
