@@ -219,9 +219,9 @@ def revert_all(names: List[str]) -> SnapdResponse:
     return http.post("/snaps", {"action": "revert", "snaps": names})
 
 
-def remove(name: str,
-           purge: Optional[bool] = False,
-           terminate: Optional[bool] = False) -> SnapdResponse:
+def remove(
+    name: str, purge: Optional[bool] = False, terminate: Optional[bool] = False
+) -> SnapdResponse:
     """Uninstalls a snap identified by `name`."""
     body = {
         "action": "remove",
@@ -242,16 +242,15 @@ def snapshots() -> SnapdResponse:
     return http.get("/snapshots")
 
 
-def forget_snapshot(id: str, snaps: Optional[List[str]] = None, users: Optional[List[str]] = None) -> SnapdResponse:
+def forget_snapshot(
+    id: str, snaps: Optional[List[str]] = None, users: Optional[List[str]] = None
+) -> SnapdResponse:
     """Deletes a snapshot identified by `id`.
 
     :param snap_id: The ID of the snapshot to delete.
     """
 
-    body: Dict[str, Union[str, List[str]]] = {
-        "action": "forget",
-        "set": id
-    }
+    body: Dict[str, Union[str, List[str]]] = {"action": "forget", "set": id}
 
     if snaps is not None:
         body["snaps"] = snaps
@@ -315,9 +314,9 @@ def list() -> SnapdResponse:
 
 
 def list_all() -> SnapdResponse:
-    """GETs a list of all installed snaps including disabled ones.
-    """
+    """GETs a list of all installed snaps including disabled ones."""
     return http.get("/snaps?select=all")
+
 
 # Configuration: get and set snap options
 
@@ -350,7 +349,9 @@ def set_conf(name: str, config: Dict[str, Any]) -> SnapdResponse:
 
 
 def get_connections(
-    snap: Optional[str] = None, select: Optional[str] = None, interface: Optional[str] = None
+    snap: Optional[str] = None,
+    select: Optional[str] = None,
+    interface: Optional[str] = None,
 ) -> SnapdResponse:
     """Retrieve connections from snapd.
 
@@ -448,6 +449,7 @@ def disconnect_interface(
 
 # Model: get model and remodel
 
+
 def get_model() -> SnapdResponse:
     """
     GETs the active model assertion of system.
@@ -463,11 +465,12 @@ def remodel(new_model_assertion: str, offline: bool = False) -> SnapdResponse:
     :param offline: enables offline remodelling
     :return: A SnapdResponse containing the response from the snapd API.
     """
-    body = {"new-model" : new_model_assertion, "offline": offline}
+    body = {"new-model": new_model_assertion, "offline": offline}
     return http.post("/model", body=body)
 
 
 # Validation sets: list/refresh validation sets
+
 
 def get_validation_sets() -> SnapdResponse:
     """
@@ -487,7 +490,11 @@ def get_validation_set(account_id: str, validation_set_name: str) -> SnapdRespon
     return http.get(f"/validation-sets/{account_id}/{validation_set_name}")
 
 
-def refresh_validation_set(account_id: str, validation_set_name: str, validation_set_sequence: Optional[int] = None) -> SnapdResponse:
+def refresh_validation_set(
+    account_id: str,
+    validation_set_name: str,
+    validation_set_sequence: Optional[int] = None,
+) -> SnapdResponse:
     """
     Refresh validation set of system
     :param account_id:  Identifier for the developer account (creator of the validation-set).
@@ -501,14 +508,16 @@ def refresh_validation_set(account_id: str, validation_set_name: str, validation
 
     body = {
         "action": "refresh",
-        "validation-sets": [
-            validation_set_str
-        ],
+        "validation-sets": [validation_set_str],
     }
     return http.post("/snaps", body=body)
 
 
-def forget_validation_set(account_id: str, validation_set_name: str, validation_set_sequence: Optional[int] = None) -> SnapdResponse:
+def forget_validation_set(
+    account_id: str,
+    validation_set_name: str,
+    validation_set_sequence: Optional[int] = None,
+) -> SnapdResponse:
     """
     Forget a validation set of system
     :param account_id:  Identifier for the developer account (creator of the validation-set).
@@ -516,9 +525,7 @@ def forget_validation_set(account_id: str, validation_set_name: str, validation_
     :return: A SnapdResponse containing the response from the snapd API.
     """
 
-    body: Dict[str, Union[str, int]] = {
-        "action": "forget"
-    }
+    body: Dict[str, Union[str, int]] = {"action": "forget"}
 
     if validation_set_sequence is not None:
         body["sequence"] = validation_set_sequence
@@ -526,17 +533,18 @@ def forget_validation_set(account_id: str, validation_set_name: str, validation_
     return http.post(f"/validation-sets/{account_id}/{validation_set_name}", body=body)
 
 
-def enforce_validation_set(account_id: str, validation_set_name: str, validation_set_sequence: Optional[int] = None) -> SnapdResponse:
+def enforce_validation_set(
+    account_id: str,
+    validation_set_name: str,
+    validation_set_sequence: Optional[int] = None,
+) -> SnapdResponse:
     """
     Enforce a validation set of system
     :param account_id:  Identifier for the developer account (creator of the validation-set).
     :param validation_set_name: Name of the validation set.
     :return: A SnapdResponse containing the response from the snapd API.
     """
-    body: Dict[str, Union[str, int]] = {
-        "action": "apply",
-        "mode": "enforce"
-        }
+    body: Dict[str, Union[str, int]] = {"action": "apply", "mode": "enforce"}
 
     if validation_set_sequence is not None:
         body["sequence"] = validation_set_sequence
@@ -544,17 +552,18 @@ def enforce_validation_set(account_id: str, validation_set_name: str, validation
     return http.post(f"/validation-sets/{account_id}/{validation_set_name}", body=body)
 
 
-def monitor_validation_set(account_id: str, validation_set_name: str, validation_set_sequence: Optional[int] = None) -> SnapdResponse:
+def monitor_validation_set(
+    account_id: str,
+    validation_set_name: str,
+    validation_set_sequence: Optional[int] = None,
+) -> SnapdResponse:
     """
     Apply a validation set of system
     :param account_id:  Identifier for the developer account (creator of the validation-set).
     :param validation_set_name: Name of the validation set.
     :return: A SnapdResponse containing the response from the snapd API.
     """
-    body: Dict[str, Union[str, int]] = {
-        "action": "apply",
-        "mode": "monitor"
-    }
+    body: Dict[str, Union[str, int]] = {"action": "apply", "mode": "monitor"}
 
     if validation_set_sequence is not None:
         body["sequence"] = validation_set_sequence
@@ -570,6 +579,7 @@ def get_recovery_systems() -> SnapdResponse:
     """
     return http.get("/systems")
 
+
 def get_recovery_system(label: str) -> SnapdResponse:
     """
     GET specific recovery system
@@ -578,21 +588,18 @@ def get_recovery_system(label: str) -> SnapdResponse:
     return http.get(f"/systems/{label}")
 
 
-def perform_system_action(action: str, mode: str)-> SnapdResponse:
+def perform_system_action(action: str, mode: str) -> SnapdResponse:
     """
     Attempt to perform an action with the current active recovery system.
     :param action: Action to perform, which is either “reboot”, “create” or “do”.
     :param mode:  The mode to transition to either "run", "recover", "install" or "factory-reset".
     :return: A SnapdResponse containing the response from the snapd API.
     """
-    body = {
-        "action": action,
-        "mode": mode
-    }
+    body = {"action": action, "mode": mode}
     return http.post("/systems", body=body)
 
 
-def perform_recovery_action(label: str, action: str, mode: str)-> SnapdResponse:
+def perform_recovery_action(label: str, action: str, mode: str) -> SnapdResponse:
     """
     Attempt to perform an action with the current active recovery system.
     :param label: Label to specify recovery system.
@@ -600,12 +607,8 @@ def perform_recovery_action(label: str, action: str, mode: str)-> SnapdResponse:
     :param mode:  The mode to transition to either "run", "recover", "install" or "factory-reset".
     :return: A SnapdResponse containing the response from the snapd API.
     """
-    body = {
-        "action": action,
-        "mode": mode
-    }
+    body = {"action": action, "mode": mode}
     return http.post(f"/systems/{label}", body=body)
-
 
 
 # Assertions: list and add assertions
@@ -759,4 +762,44 @@ def restart_all(names: List[str], reload: bool = False) -> SnapdResponse:
     return http.post(
         "/apps",
         {"action": "restart", "names": names, "reload": reload},
+    )
+
+
+# FDE recovery keys
+
+
+def get_keyslots() -> SnapdResponse:
+    """Enumerate keyslots"""
+    return http.get("/system-volumes")
+
+
+def generate_recovery_key() -> SnapdResponse:
+    """Generate a recovery key."""
+    return http.post(
+        "/system-volumes",
+        {"action": "generate-recovery-key"},
+    )
+
+
+def update_recovery_key(
+    key_id: str, keyslot_name: str, replace: bool = False
+) -> SnapdResponse:
+    """Add or replace the recovery key for a keyslot.
+
+    :param key_id: unique id from generating the recovery key.
+    :param keyslot_name: name of the keyslot to generate.
+    :param replace: if `True`, updates the recovery key for the keyslot.
+    """
+    if replace:
+        action = "replace-recovery-key"
+    else:
+        action = "add-recovery-key"
+
+    return http.post(
+        "/system-volumes",
+        {
+            "action": action,
+            "key-id": key_id,
+            "keyslots": [{"name": keyslot_name}],
+        },
     )
