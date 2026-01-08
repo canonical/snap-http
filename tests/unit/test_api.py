@@ -759,7 +759,9 @@ def test_remove(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
-        assert body == {"action": "remove", "purge": False, "terminate": False}
+        assert body == {"action": "remove",
+                        "purge": False,
+                        "terminate": False}
 
         return mock_response
 
@@ -775,7 +777,9 @@ def test_remove_exception(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/snaps/placeholder"
-        assert body == {"action": "remove", "purge": False, "terminate": False}
+        assert body == {"action": "remove", 
+                        "purge": False,
+                        "terminate": False}
 
         raise http.SnapdHttpException()
 
@@ -1036,9 +1040,8 @@ def test_save_snapshot(monkeypatch):
         assert body == {
             "action": "snapshot",
             "snaps": ["snapd"],
-            "users": ["user1"],
-        }
-
+            "users": ["user1"],}
+        
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
@@ -1064,7 +1067,7 @@ def test_forget_snapshot(monkeypatch):
             "set": 1,
             "snaps": ["snapd"],
             "users": ["user1"],
-        }
+            }
 
         return mock_response
 
@@ -1150,11 +1153,7 @@ def test_get_connections(monkeypatch):
 
     def mock_get(path, query_params):
         assert path == "/connections"
-        assert query_params == {
-            "snap": "placeholder",
-            "select": "all",
-            "interface": "snapd",
-        }
+        assert query_params == {"snap": "placeholder", "select": "all", "interface": "snapd"}
 
         return mock_response
 
@@ -1176,21 +1175,13 @@ def test_get_interfaces(monkeypatch):
 
     def mock_get(path, query_params):
         assert path == "/interfaces"
-        assert query_params == {
-            "select": "all",
-            "slots": True,
-            "plugs": True,
-            "doc": True,
-            "names": "snapd",
-        }
+        assert query_params == {"select": "all", "slots": True, "plugs": True, "doc": True, "names": "snapd"}
 
         return mock_response
 
     monkeypatch.setattr(http, "get", mock_get)
 
-    result = api.get_interfaces(
-        select="all", slots=True, plugs=True, doc=True, names="snapd"
-    )
+    result = api.get_interfaces(select="all", slots=True, plugs=True, doc=True, names="snapd")
 
     assert result == mock_response
 
@@ -1207,21 +1198,16 @@ def test_connect_interface(monkeypatch):
     def mock_post(path, body):
         assert path == "/interfaces"
         assert body == {
-            "action": "connect",
-            "slots": [{"snap": "placeholder1", "slot": "config"}],
-            "plugs": [{"snap": "placeholder2", "plug": "config"}],
-        }
+                "action": "connect",
+                "slots": [{"snap": "placeholder1", "slot": "config"}],
+                "plugs": [{"snap": "placeholder2", "plug": "config"}],
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.connect_interface(
-        in_snap="placeholder1",
-        in_slot="config",
-        out_snap="placeholder2",
-        out_plug="config",
-    )
+    result = api.connect_interface(in_snap="placeholder1", in_slot="config", out_snap="placeholder2", out_plug="config")
 
     assert result == mock_response
 
@@ -1238,21 +1224,16 @@ def test_disconnect_interface(monkeypatch):
     def mock_post(path, body):
         assert path == "/interfaces"
         assert body == {
-            "action": "disconnect",
-            "slots": [{"snap": "placeholder1", "slot": "config"}],
-            "plugs": [{"snap": "placeholder2", "plug": "config"}],
-        }
+                "action": "disconnect",
+                "slots": [{"snap": "placeholder1", "slot": "config"}],
+                "plugs": [{"snap": "placeholder2", "plug": "config"}],
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.disconnect_interface(
-        in_snap="placeholder1",
-        in_slot="config",
-        out_snap="placeholder2",
-        out_plug="config",
-    )
+    result = api.disconnect_interface(in_snap="placeholder1", in_slot="config", out_snap="placeholder2", out_plug="config")
 
     assert result == mock_response
 
@@ -1289,7 +1270,7 @@ def test_remodel(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/model"
-        assert body == {"new-model": "dummy_model_assertion", "offline": True}
+        assert body == {"new-model": "dummy_model_assertion", "offline" : True}
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
@@ -1330,7 +1311,7 @@ def test_get_validation_set(monkeypatch) -> None:
 
     account_id: str = "device-platform"
     validation_set_name: str = "dev-validation-set"
-
+    
     def mock_get(path):
         assert path == f"/validation-sets/{account_id}/{validation_set_name}"
         return mock_response
@@ -1354,23 +1335,21 @@ def test_refresh_validation_set(monkeypatch) -> None:
     account_id: str = "device-platform"
     validation_set_name: str = "dev-validation-set"
     validation_set_sequence: int = 12
-
+    
     def mock_post(path, body):
         assert path == "/snaps"
         assert body == {
-            "action": "refresh",
-            "validation-sets": [
-                f"{account_id}/{validation_set_name}={validation_set_sequence}"
-            ],
-        }
+                "action": "refresh",
+                "validation-sets": [
+                    f"{account_id}/{validation_set_name}={validation_set_sequence}"
+                    ],
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.refresh_validation_set(
-        account_id, validation_set_name, validation_set_sequence
-    )
+    result = api.refresh_validation_set(account_id, validation_set_name, validation_set_sequence)
 
     assert result == mock_response
 
@@ -1391,18 +1370,16 @@ def test_monitor_validation_set(monkeypatch) -> None:
     def mock_post(path, body):
         assert path == f"/validation-sets/{account_id}/{validation_set_name}"
         assert body == {
-            "action": "apply",
-            "mode": "monitor",
-            "sequence": validation_set_sequence,
-        }
+                "action": "apply",
+                "mode": "monitor",
+                "sequence": validation_set_sequence
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.monitor_validation_set(
-        account_id, validation_set_name, validation_set_sequence
-    )
+    result = api.monitor_validation_set(account_id, validation_set_name, validation_set_sequence)
 
     assert result == mock_response
 
@@ -1423,18 +1400,16 @@ def test_enforce_validation_set(monkeypatch) -> None:
     def mock_post(path, body):
         assert path == f"/validation-sets/{account_id}/{validation_set_name}"
         assert body == {
-            "action": "apply",
-            "mode": "enforce",
-            "sequence": validation_set_sequence,
-        }
+                "action": "apply",
+                "mode": "enforce",
+                "sequence": validation_set_sequence
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.enforce_validation_set(
-        account_id, validation_set_name, validation_set_sequence
-    )
+    result = api.enforce_validation_set(account_id, validation_set_name, validation_set_sequence)
 
     assert result == mock_response
 
@@ -1454,15 +1429,16 @@ def test_forget_validation_set(monkeypatch) -> None:
 
     def mock_post(path, body):
         assert path == f"/validation-sets/{account_id}/{validation_set_name}"
-        assert body == {"action": "forget", "sequence": validation_set_sequence}
+        assert body == {
+                "action": "forget",
+                "sequence": validation_set_sequence
+                }
 
         return mock_response
 
     monkeypatch.setattr(http, "post", mock_post)
 
-    result = api.forget_validation_set(
-        account_id, validation_set_name, validation_set_sequence
-    )
+    result = api.forget_validation_set(account_id, validation_set_name, validation_set_sequence)
 
     assert result == mock_response
 
@@ -1486,10 +1462,9 @@ def test_get_recovery_systems(monkeypatch) -> None:
 
     assert result == mock_response
 
-
 def test_get_recovery_system(monkeypatch) -> None:
     """`api.get_recovery_system` returns a `types.SnapdResponse`."""
-    label = "20251022"
+    label="20251022"
     mock_response = types.SnapdResponse(
         type="sync",
         status_code=200,
@@ -1507,7 +1482,6 @@ def test_get_recovery_system(monkeypatch) -> None:
 
     assert result == mock_response
 
-
 def test_perform_system_action(monkeypatch) -> None:
     """`api.perform_system_action` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
@@ -1519,10 +1493,12 @@ def test_perform_system_action(monkeypatch) -> None:
 
     action: str = "do"
     mode: str = "recover"
-
     def mock_post(path, body):
         assert path == "/systems"
-        assert body == {"action": action, "mode": mode}
+        assert body == {
+                "action": action,
+                "mode": mode
+                }
 
         return mock_response
 
@@ -1545,10 +1521,12 @@ def test_perform_recovery_action(monkeypatch) -> None:
     action: str = "do"
     mode: str = "recover"
     label: str = "20250410"
-
     def mock_post(path, body):
         assert path == f"/systems/{label}"
-        assert body == {"action": action, "mode": mode}
+        assert body == {
+                "action": action,
+                "mode": mode
+                }
 
         return mock_response
 
@@ -2337,7 +2315,7 @@ def test_restart_all_and_reload(monkeypatch):
 
 
 def test_restart_all_exception(monkeypatch):
-    """`api.restart_all` returns a `types.SnapdResponse`."""
+    """`api.restart_all` raises a `http.SnapdHttpException`."""
 
     def mock_post(path, body):
         assert path == "/apps"
