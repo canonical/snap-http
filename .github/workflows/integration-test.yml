@@ -23,6 +23,7 @@ jobs:
         run: |
           sudo apt install -y snapd
           sudo systemctl start snapd.service
+          sudo snap install snapd --edge
       - name: LXD setup
         uses: canonical/setup-lxd@main
       - name: build test_snap
