@@ -44,3 +44,6 @@ jobs:
 
   integration_test:
     uses: ./.github/workflows/integration-test.yml
+
+  integration_tpm_test:
+    uses: ./.github/workflows/integration-tpm.yml
