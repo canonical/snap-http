@@ -59,6 +59,9 @@ from .api import (
     stop_all,
     restart,
     restart_all,
+    get_keyslots,
+    generate_recovery_key,
+    update_recovery_key,
 )
 
 from .http import SnapdHttpException

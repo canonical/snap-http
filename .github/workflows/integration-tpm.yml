@@ -22,7 +22,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ASSETS=$(gh release view v0.0.0 --repo HJK-X/snap-http --json assets --jq '.assets | sort_by(.name)[] | .name' | sort)
+          ASSETS=$(gh release view v0.0.0 --repo HJK-X/snap-http --json assets --jq '.assets | sort_by(.name)[] | .name')
 
           echo "$ASSETS" | while read -r asset; do
             echo "Downloading asset: $asset"
@@ -93,3 +93,16 @@ jobs:
         run: |
           ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "sudo shutdown -h now"
           pkill -f swtpm
+
+      - name: Stop VM
+        if: always()
+        run: |
+          pkill -f qemu-system-x86_64 || true
+          sleep 2
+
+      - name: Dump VM console log
+        if: always()
+        run: |
+          echo "===== VM CONSOLE LOG ====="
+          tail -n 500 vm-console.log || true
+
