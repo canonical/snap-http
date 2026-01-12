@@ -1,0 +1,88 @@
+name: Integration Test with TPM and FDE
+
+on:
+  workflow_call:
+
+jobs:
+  snapd_integration_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            qemu-system-x86 \
+            swtpm \
+            openssh-client \
+            expect \
+
+      - name: download VM image
+        run: |
+          gh release download v1.0.0 --repo HJK-X/snap-http -p "vm.part.*"
+          ASSETS=$(ls vm.part.* | sort | tr '\n' ' ')
+          cat ASSETS > vm.qcow2
+
+      - name: Create TPM socket
+        run: |
+          mkdir -p swtpm
+          swtpm socket \
+            --tpmstate dir=$(pwd)/swtpm \
+            --ctrl type=unixio,path=$(pwd)/swtpm/swtpm.sock \
+            --log level=20 \
+            --tpm2 \
+            --daemon
+
+      - name: Start QEMU VM
+        run: |
+          qemu-system-x86_64 \
+            -enable-kvm \
+            -hda out.qcow2 -m 8192M -smp 2 \
+            -usbdevice tablet -vga virtio \
+            -chardev socket,id=chrtpm,path=$(pwd)/swtpm/swtpm.sock \
+            -tpmdev emulator,id=tpm0,chardev=chrtpm \
+            -device tpm-tis,tpmdev=tpm0 \
+            -drive if=pflash,format=raw,unit=0,file=$(pwd)/ovmf/OVMF_CODE_4M.ms.fd,readonly=on \
+            -drive if=pflash,format=raw,unit=1,file=$(pwd)/ovmf/OVMF_VARS_4M_vm.ms.fd \
+            -machine q35,smm=on \
+            -netdev user,id=netdev1,hostfwd=tcp::2222-:22 \
+            -device virtio-net-pci,netdev=netdev1,romfile= \
+            -fsdev local,id=fsdev0,path=$(pwd),security_model=none \
+            -device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \
+            -serial file:vm-console.log \
+            -daemonize
+
+      - name: Create SSH key
+        env:
+          SSH_KEY: ${{ secrets.CI_VM_SSH_KEY }}
+        run: |
+          echo $SSH_KEY > id_ci
+          chmod 600 id_ci
+
+      - name: Wait for SSH
+        run: |
+          echo "Waiting for VM SSH..."
+          for i in {1..30}; do
+            if ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "echo ready" >/dev/null 2>&1; then
+              echo "VM is ready!"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run integration test
+        run: |
+          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "sudo shutdown -h now" << 'EOF'
+            sudo mkdir /mnt/host
+            sudo mount -t 9p -o trans=virtio hostshare /mnt/host
+            cd /mnt/host/snap-http/
+
+            sudo poetry install
+            sudo poetry run pytest tests/integration_tpm
+          EOF
+
+      - name: Shutdown VM
+        run: |
+          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "sudo shutdown -h now"
+          pkill -f swtpm
