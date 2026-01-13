@@ -2364,6 +2364,26 @@ def test_get_keyslots(monkeypatch):
     assert result == mock_response
 
 
+def test_get_keyslots_exception(monkeypatch):
+    """`api.get_keyslots` raises a `http.SnapdHttpException`."""
+
+    def mock_get(path):
+        assert path == "/system-volumes"
+
+        raise http.SnapdHttpException(
+            {
+                "message": "Bad Request",
+                "kind": "bad-request",
+                "value": {"reason": "bad-request"},
+            }
+        )
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    with pytest.raises(http.SnapdHttpException):
+        api.get_keyslots()
+
+
 def test_generate_recovery_key(monkeypatch):
     """`api.generate_recovery_key` returns a `types.SnapdResponse`."""
 
@@ -2389,6 +2409,27 @@ def test_generate_recovery_key(monkeypatch):
 
     result = api.generate_recovery_key()
     assert result == mock_response
+
+
+def test_generate_recovery_key_exception(monkeypatch):
+    """`api.generate_recovery_key` raises a `http.SnapdHttpException`."""
+
+    def mock_post(path, body):
+        assert path == "/system-volumes"
+        assert body == {"action": "generate-recovery-key"}
+
+        raise http.SnapdHttpException(
+            {
+                "message": "Bad Request",
+                "kind": "not-supported",
+                "value": {"reason": "not-supported"},
+            }
+        )
+
+    monkeypatch.setattr(http, "post", mock_post)
+
+    with pytest.raises(http.SnapdHttpException):
+        api.generate_recovery_key()
 
 
 def test_add_recovery_key(monkeypatch):
@@ -2423,6 +2464,11 @@ def test_add_recovery_key_exception(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/system-volumes"
+        assert body == {
+            "action": "add-recovery-key",
+            "key-id": "fake-key-id",
+            "keyslots": [{"name": "mykeyslot"}],
+        }
 
         raise http.SnapdHttpException(
             {
@@ -2470,6 +2516,11 @@ def test_replace_recovery_key_exception(monkeypatch):
 
     def mock_post(path, body):
         assert path == "/system-volumes"
+        assert body == {
+            "action": "replace-recovery-key",
+            "key-id": "fake-key-id",
+            "keyslots": [{"name": "mykeyslot"}],
+        }
 
         raise http.SnapdHttpException(
             {
