@@ -33,10 +33,9 @@ jobs:
 
       - name: Create TPM socket
         run: |
-          mkdir -p swtpm
           swtpm socket \
-            --tpmstate dir=$(pwd)/swtpm \
-            --ctrl type=unixio,path=$(pwd)/swtpm/swtpm.sock \
+            --tpmstate dir=$(pwd)/tests/integration_tpm/assets/swtpm \
+            --ctrl type=unixio,path=$(pwd)/tests/integration_tpm/assets/swtpm/swtpm.sock \
             --log level=20 \
             --tpm2 \
             --daemon
