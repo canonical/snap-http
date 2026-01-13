@@ -24,6 +24,7 @@ jobs:
           sudo apt install -y snapd
           sudo systemctl start snapd.service
           # There is currently a bug where the deb version conflicts with the edge version, causing the deb to be prioritized.
+          # https://warthogs.atlassian.net/browse/SNAPDENG-36098
           # The workaround is to rebuild the snap with a higher version.
           # sudo snap install snapd --edge
           snap download snapd --channel=latest/edge
