@@ -47,3 +47,5 @@ jobs:
 
   integration_tpm_test:
     uses: ./.github/workflows/integration-tpm.yml
+    secrets:
+      CI_VM_SSH_KEY: ${{ secrets.CI_VM_SSH_KEY }}

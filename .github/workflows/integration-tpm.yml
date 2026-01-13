@@ -2,6 +2,9 @@ name: Integration Test with TPM and FDE
 
 on:
   workflow_call:
+    secrets:
+      CI_VM_SSH_KEY:
+        required: true
 
 jobs:
   snapd_integration_test:
@@ -60,10 +63,8 @@ jobs:
             -daemonize
 
       - name: Create SSH key
-        env:
-          SSH_KEY: ${{ secrets.CI_VM_SSH_KEY }}
         run: |
-          echo $SSH_KEY > id_ci
+          echo "${{ secrets.CI_VM_SSH_KEY }}" > id_ci
           chmod 600 id_ci
 
       - name: Wait for SSH
@@ -79,14 +80,13 @@ jobs:
 
       - name: Run integration test
         run: |
-          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost << 'EOF'
-            sudo mkdir /mnt/host
-            sudo mount -t 9p -o trans=virtio hostshare /mnt/host
-            cd /mnt/host/snap-http/
-
-            sudo poetry install
+          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "
+            sudo mkdir -p /mnt/host &&
+            mountpoint -q /mnt/host || sudo mount -t 9p -o trans=virtio hostshare /mnt/host &&
+            cd /mnt/host/ &&
+            sudo poetry install &&
             sudo poetry run pytest tests/integration_tpm
-          EOF
+          "
 
       - name: Shutdown VM
         run: |
