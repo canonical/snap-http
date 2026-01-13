@@ -79,7 +79,7 @@ jobs:
 
       - name: Run integration test
         run: |
-          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "sudo shutdown -h now" << 'EOF'
+          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost << 'EOF'
             sudo mkdir /mnt/host
             sudo mount -t 9p -o trans=virtio hostshare /mnt/host
             cd /mnt/host/snap-http/
