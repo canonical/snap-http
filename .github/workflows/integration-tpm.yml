@@ -46,7 +46,7 @@ jobs:
           qemu-system-x86_64 \
             -hda vm.qcow2 -m 8192M -smp 2 \
             -usbdevice tablet -vga virtio \
-            -chardev socket,id=chrtpm,path=$(pwd)/swtpm/swtpm.sock \
+            -chardev socket,id=chrtpm,path=$(pwd)/tests/integration_tpm/assets/swtpm/swtpm.sock \
             -tpmdev emulator,id=tpm0,chardev=chrtpm \
             -device tpm-tis,tpmdev=tpm0 \
             -drive if=pflash,format=raw,unit=0,file=$(pwd)/tests/integration_tpm/assets/OVMF_CODE_4M.ms.fd,readonly=on \
