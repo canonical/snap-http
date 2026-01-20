@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y \
@@ -21,7 +21,7 @@ jobs:
             openssh-client \
             expect \
 
-      - name: download VM image
+      - name: Download VM image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -78,7 +78,7 @@ jobs:
             sleep 5
           done
 
-      - name: Run integration test
+      - name: Run integration tests
         run: |
           ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "
             sudo mkdir -p /mnt/host &&
@@ -97,7 +97,6 @@ jobs:
         if: always()
         run: |
           pkill -f qemu-system-x86_64 || true
-          sleep 2
 
       - name: Dump VM console log
         if: always()
