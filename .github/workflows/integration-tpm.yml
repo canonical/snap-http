@@ -25,10 +25,10 @@ jobs:
         env:
           cache-name: cache-tpm-vm
         with:
-        path: vm.qcow2
-        key: tpm-vm-${{ hashFiles('vm.qcow2') }}
-        restore-keys: |
-          tpm-vm-
+          path: vm.qcow2
+          key: tpm-vm-${{ hashFiles('vm.qcow2') }}
+          restore-keys: |
+            tpm-vm-
 
       - if: ${{ steps.cache-tpm-vm.outputs.cache-hit != 'true' }}
         name: Download VM image
