@@ -21,7 +21,17 @@ jobs:
             openssh-client \
             expect \
 
-      - name: Download VM image
+      - name: Cache VM image
+        env:
+          cache-name: cache-tpm-vm
+        with:
+        path: vm.qcow2
+        key: tpm-vm-${{ hashFiles('vm.qcow2') }}
+        restore-keys: |
+          tpm-vm-
+
+      - if: ${{ steps.cache-tpm-vm.outputs.cache-hit != 'true' }}
+        name: Download VM image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -33,6 +43,7 @@ jobs:
             cat "$asset" >> vm.qcow2
             rm "$asset"
           done
+
 
       - name: Create TPM socket
         run: |
