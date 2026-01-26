@@ -70,8 +70,8 @@ jobs:
 
       - name: Wait for SSH
         env:
-          MAX_SSH_RETRIES=10
-          SSH_RETRY_INTERVAL=5
+          MAX_SSH_RETRIES: 10
+          SSH_RETRY_INTERVAL: 5
         run: |
           echo "Waiting for VM SSH..."
           for i in $(seq 1 ${MAX_SSH_RETRIES}); do
