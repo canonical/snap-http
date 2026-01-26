@@ -1,10 +1,9 @@
 name: Integration Test with TPM and FDE
 
 on:
-  workflow_call:
-    secrets:
-      CI_VM_SSH_KEY:
-        required: true
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   snapd_integration_test:
@@ -18,21 +17,9 @@ jobs:
           sudo apt install -y \
             qemu-system-x86 \
             swtpm \
-            openssh-client \
-            expect \
+            openssh-client
 
-      - name: Cache VM image
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-tpm-vm
-        with:
-          path: vm.qcow2
-          key: tpm-vm-${{ hashFiles('vm.qcow2') }}
-          restore-keys: |
-            tpm-vm-
-
-      - if: ${{ steps.cache-tpm-vm.outputs.cache-hit != 'true' }}
-        name: Download VM image
+      - name: Download VM image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -93,14 +80,11 @@ jobs:
       - name: Run integration tests
         run: |
           ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost 'bash -s' < tests/integration_tpm/assets/run_tests.sh
-      - name: Shutdown VM
-        run: |
-          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "sudo shutdown -h now"
-          pkill -f swtpm
 
       - name: Stop VM
         if: always()
         run: |
+          pkill -f swtpm || true
           pkill -f qemu-system-x86_64 || true
 
       - name: Dump VM console log
