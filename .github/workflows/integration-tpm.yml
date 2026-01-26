@@ -22,12 +22,14 @@ jobs:
       - name: Download VM image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: v0.0.0
+          RELEASE_REPO: HJK-X/snap-http
         run: |
-          ASSETS=$(gh release view v0.0.0 --repo HJK-X/snap-http --json assets --jq '.assets | sort_by(.name)[] | .name')
+          ASSETS=$(gh release view ${RELEASE_TAG} --repo ${RELEASE_REPO} --json assets --jq '.assets | sort_by(.name)[] | .name')
 
           echo "$ASSETS" | while read -r asset; do
             echo "Downloading asset: $asset"
-            gh release download v0.0.0 --repo HJK-X/snap-http -p "$asset"
+            gh release download ${RELEASE_TAG} --repo ${RELEASE_REPO} -p "$asset"
             cat "$asset" >> vm.qcow2
             rm "$asset"
           done
@@ -67,14 +69,17 @@ jobs:
           chmod 600 id_ci
 
       - name: Wait for SSH
+        env:
+          MAX_SSH_RETRIES=10
+          SSH_RETRY_INTERVAL=5
         run: |
           echo "Waiting for VM SSH..."
-          for i in {1..30}; do
-            if ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "echo ready" >/dev/null 2>&1; then
+          for i in $(seq 1 ${MAX_SSH_RETRIES}); do
+            if ssh -i id_ci -o ConnectTimeout=60 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "echo ready" >/dev/null 2>&1; then
               echo "VM is ready!"
               break
             fi
-            sleep 5
+            sleep ${SSH_RETRY_INTERVAL}
           done
 
       - name: Run integration tests

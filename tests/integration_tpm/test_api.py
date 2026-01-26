@@ -43,7 +43,9 @@ def test_replace_recovery_key():
     assert response.status_code == 202
 
     keyslots = snap_http.get_keyslots().result
-    assert "test-add-key" in keyslots["by-container-role"]["system-data"]["keyslots"]
+    assert (
+        "test-replace-key" in keyslots["by-container-role"]["system-data"]["keyslots"]
+    )
 
     key_id = snap_http.generate_recovery_key().result["key-id"]
     response = wait_for(snap_http.update_recovery_key)(key_id, "test-replace-key", True)
