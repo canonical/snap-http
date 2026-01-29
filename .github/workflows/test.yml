@@ -16,7 +16,7 @@ jobs:
         run: |
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
-          pipx install poetry==1.7
+          pipx install poetry==2.3.1
           poetry install
       - name: lint
         run: poetry run ruff check .
@@ -32,7 +32,7 @@ jobs:
         run: |
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
-          pipx install poetry==1.7
+          pipx install poetry==2.3.1
           poetry install
       - name: install additional python versions
         run: |
