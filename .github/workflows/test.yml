@@ -11,7 +11,7 @@ jobs:
     name: lint and typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: install poetry and dependencies
         run: |
           python3 -m pip install --user pipx
@@ -27,7 +27,7 @@ jobs:
     name: tox unit test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: install poetry and dependencies
         run: |
           python3 -m pip install --user pipx
@@ -37,8 +37,8 @@ jobs:
       - name: install additional python versions
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt install -y python3.8 python3.9 python3.10 python3.11 python3.12
-          sudo apt install -y python3.8-distutils python3.9-distutils
+          sudo apt-get install -y python3.8 python3.9 python3.10 python3.11 python3.12
+          sudo apt-get install -y python3.8-distutils python3.9-distutils
       - name: tox unit test
         run: poetry run tox
 
