@@ -1,3 +1,5 @@
+import pytest
+
 import snap_http
 
 from tests.utils import get_snap_details, is_snap_installed, remove_assertion, wait_for
@@ -7,6 +9,25 @@ def test_list_snaps():
     """Test listing snaps."""
     installed_snaps = {snap["name"] for snap in snap_http.list().result}
     assert "snapd" in installed_snaps
+
+
+@pytest.mark.parametrize(
+    "snaps",
+    [
+        {"snapd"},
+        {"snapd", "core24"},
+    ]
+)
+def test_list_snaps_with_names(snaps):
+    """Test listing snaps, filtering by name."""
+    listed_snaps = {snap["name"] for snap in snap_http.list(snaps=snaps).result}
+    assert listed_snaps == snaps
+
+
+def test_list_snaps_with_names_no_match():
+    """Test listing snaps, filtering by name."""
+    listed_snaps = {snap["name"] for snap in snap_http.list(snaps=["othsnaushoeatnlxbuehceaoemtapgi0ceuobhtkerobhgcio"]).result}
+    assert listed_snaps == set()
 
 
 def test_list_all_snaps():

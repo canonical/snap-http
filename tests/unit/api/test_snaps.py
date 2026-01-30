@@ -876,8 +876,15 @@ def test_unhold_all_exception(monkeypatch):
     with pytest.raises(http.SnapdHttpException):
         _ = api.unhold_all(["placeholder1", "placeholder2"])
 
-
-def test_list(monkeypatch):
+\
+@pytest.mark.parametrize(
+    ("snaps", "expected_params"),
+    [
+        (None, {}),
+        (["snapd", "core24"], {"snaps": "snapd,core24"}),
+    ]
+)
+def test_list(monkeypatch, snaps, expected_params):
     """`api.list` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
         type="sync",
@@ -886,14 +893,16 @@ def test_list(monkeypatch):
         result=[{"title": "placeholder1"}, {"title": "placeholder2"}],
     )
 
-    def mock_get(path):
+    def mock_get(path, query_params):
         assert path == "/snaps"
+
+        assert query_params == expected_params
 
         return mock_response
 
     monkeypatch.setattr(http, "get", mock_get)
 
-    result = api.list()
+    result = api.list(snaps=snaps)
 
     assert result == mock_response
 
