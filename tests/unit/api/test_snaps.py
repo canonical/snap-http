@@ -876,7 +876,7 @@ def test_unhold_all_exception(monkeypatch):
     with pytest.raises(http.SnapdHttpException):
         _ = api.unhold_all(["placeholder1", "placeholder2"])
 
-\
+
 @pytest.mark.parametrize(
     ("snaps", "expected_params"),
     [
