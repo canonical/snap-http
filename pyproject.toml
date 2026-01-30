@@ -30,6 +30,7 @@ mypy = "^1.14.1"
 exclude = [
     ".tox",
     "snap_http/__init__.py",
+    "snap_http/api/__init__.py",
 ]
 
 [tool.ruff.lint.mccabe]

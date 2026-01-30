@@ -37,7 +37,7 @@ jobs:
       - name: install additional python versions
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get install -y python3.8 python3.9 python3.10 python3.11 python3.12
+          sudo apt-get install -y python3.8 python3.9 python3.10 python3.11 python3.12 python3.13 python3.14
           sudo apt-get install -y python3.8-distutils python3.9-distutils
       - name: tox unit test
         run: poetry run tox
