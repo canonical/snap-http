@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union, Iterable
 
 from .. import http
 from ..types import FileUpload, FormData, SnapdResponse
@@ -244,12 +244,17 @@ def unhold_all(names: List[str]) -> SnapdResponse:
     return http.post("/snaps", {"action": "unhold", "snaps": names})
 
 
-def list() -> SnapdResponse:
+def list(*, snaps: Optional[Iterable[str]] = None) -> SnapdResponse:
     """GETs a list of installed snaps.
 
     This stomps on builtins.list, so please import it namespaced.
+
+    :param snaps: An optional iterable of snap names by which to filter.
     """
-    return http.get("/snaps")
+    query_params = {}
+    if snaps is not None:
+        query_params["snaps"] = ",".join(snaps)
+    return http.get("/snaps", query_params=query_params)
 
 
 def list_all() -> SnapdResponse:
