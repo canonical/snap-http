@@ -10,18 +10,19 @@ jobs:
         os: ["ubuntu-24.04", "ubuntu-22.04"]
     runs-on: ${{ matrix.os }}
     steps:
-        # Access to the snapd socket requires root privileges, so these
-        # tests need to be run as root.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: install python dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          sudo pip install poetry==1.7
-          sudo poetry install
+          sudo apt-get update
+
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          pipx install poetry==2.3.1
+          poetry config virtualenvs.in-project true  # so sudo can find the venv
+          poetry install
       - name: snapd setup
         run: |
-          sudo apt install -y snapd
+          sudo apt-get install -y snapd
           sudo systemctl start snapd.service
           # There is currently a bug where the deb version conflicts with the edge version, causing the deb to be prioritized.
           # https://github.com/canonical/prompting-client/pull/283
@@ -42,8 +43,10 @@ jobs:
         run: |
           sudo snap install snapcraft --classic
           cd tests/integration/test_snap
-          snapcraft
+          snapcraft pack
           snap download hello-world --basename=hello-world
           cd $GITHUB_WORKSPACE
       - name: integration test
-        run: sudo poetry run pytest tests/integration
+        run: |
+          # access to the snapd socket requires root privileges
+          sudo "$(which poetry)" run pytest tests/integration
