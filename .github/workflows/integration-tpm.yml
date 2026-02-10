@@ -1,0 +1,107 @@
+name: Integration Test with TPM and FDE
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  snapd_integration_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            qemu-system-x86 \
+            swtpm \
+            openssh-client
+
+      - name: Download VM image
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: v0-fde-vm
+          RELEASE_REPO: canonical/snap-http
+        run: |
+          ASSETS=$(gh release view ${RELEASE_TAG} --repo ${RELEASE_REPO} --json assets --jq '.assets | sort_by(.name)[] | .name')
+
+          echo "$ASSETS" | while read -r asset; do
+            echo "Downloading asset: $asset"
+            gh release download ${RELEASE_TAG} --repo ${RELEASE_REPO} -p "$asset"
+            cat "$asset" >> vm.qcow2
+            rm "$asset"
+          done
+
+
+      - name: Create TPM socket
+        run: |
+          swtpm socket \
+            --tpmstate dir=$(pwd)/tests/integration_tpm/assets/swtpm \
+            --ctrl type=unixio,path=$(pwd)/tests/integration_tpm/assets/swtpm/swtpm.sock \
+            --log level=20 \
+            --tpm2 \
+            --daemon
+
+      - name: Start QEMU VM
+        run: |
+          qemu-system-x86_64 \
+            -hda vm.qcow2 -m 8192M -smp 2 \
+            -usbdevice tablet -vga virtio \
+            -chardev socket,id=chrtpm,path=$(pwd)/tests/integration_tpm/assets/swtpm/swtpm.sock \
+            -tpmdev emulator,id=tpm0,chardev=chrtpm \
+            -device tpm-tis,tpmdev=tpm0 \
+            -drive if=pflash,format=raw,unit=0,file=$(pwd)/tests/integration_tpm/assets/OVMF_CODE_4M.ms.fd,readonly=on \
+            -drive if=pflash,format=raw,unit=1,file=$(pwd)/tests/integration_tpm/assets/OVMF_VARS_4M_vm.ms.fd \
+            -machine q35,smm=on \
+            -netdev user,id=netdev1,hostfwd=tcp::2222-:22 \
+            -device e1000,netdev=netdev1 \
+            -fsdev local,id=fsdev0,path=$(pwd),security_model=none \
+            -device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \
+            -serial file:vm-console.log \
+            -display none \
+            -daemonize
+
+      - name: Create SSH key
+        run: |
+          echo "${{ secrets.CI_VM_SSH_KEY }}" > id_ci
+          chmod 600 id_ci
+
+      - name: Wait for SSH
+        env:
+          MAX_SSH_RETRIES: 10
+          SSH_RETRY_INTERVAL: 5
+        run: |
+          echo "Waiting for VM SSH..."
+          # Wait for 10 minutes max
+          ready=false
+          for i in $(seq 1 ${MAX_SSH_RETRIES}); do
+            if ssh -i id_ci -o ConnectTimeout=60 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "echo ready" >/dev/null 2>&1; then
+              echo "VM is ready!"
+              ready=true
+              break
+            fi
+            sleep ${SSH_RETRY_INTERVAL}
+          done
+          if [ $ready != true ]; then
+            echo "VM timed out"
+            exit 1
+          fi
+
+      - name: Run integration tests
+        run: |
+          ssh -i id_ci -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost 'bash -s' < tests/integration_tpm/assets/run_tests.sh
+
+      - name: Stop VM
+        if: always()
+        run: |
+          pkill -f swtpm || true
+          pkill -f qemu-system-x86_64 || true
+
+      - name: Dump VM console log
+        if: always()
+        run: |
+          echo "===== VM CONSOLE LOG ====="
+          tail -n 500 vm-console.log
+
