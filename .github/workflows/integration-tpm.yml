@@ -9,7 +9,7 @@ jobs:
   snapd_integration_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -22,8 +22,8 @@ jobs:
       - name: Download VM image
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: v0.0.0
-          RELEASE_REPO: HJK-X/snap-http
+          RELEASE_TAG: v0-fde-vm
+          RELEASE_REPO: canonical/snap-http
         run: |
           ASSETS=$(gh release view ${RELEASE_TAG} --repo ${RELEASE_REPO} --json assets --jq '.assets | sort_by(.name)[] | .name')
 
