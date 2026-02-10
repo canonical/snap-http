@@ -74,13 +74,20 @@ jobs:
           SSH_RETRY_INTERVAL: 5
         run: |
           echo "Waiting for VM SSH..."
+          # Wait for 10 minutes max
+          ready=false
           for i in $(seq 1 ${MAX_SSH_RETRIES}); do
             if ssh -i id_ci -o ConnectTimeout=60 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 2222 a@localhost "echo ready" >/dev/null 2>&1; then
               echo "VM is ready!"
+              ready=true
               break
             fi
             sleep ${SSH_RETRY_INTERVAL}
           done
+          if [ $ready != true ]; then
+            echo "VM timed out"
+            exit 1
+          fi
 
       - name: Run integration tests
         run: |
@@ -96,5 +103,5 @@ jobs:
         if: always()
         run: |
           echo "===== VM CONSOLE LOG ====="
-          tail -n 500 vm-console.log || true
+          tail -n 500 vm-console.log
 
