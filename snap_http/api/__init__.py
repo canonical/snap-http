@@ -17,6 +17,7 @@ from .apps import (
 )
 from .assertions import add_assertion, get_assertion_types, get_assertions
 from .changes import check_change, check_changes
+from .confdb import delegate_confdb, get_confdb, set_confdb, undelegate_confdb
 from .fde import generate_recovery_key, get_keyslots, update_recovery_key
 from .interfaces import (
     connect_interface,
