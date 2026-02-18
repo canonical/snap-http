@@ -20,6 +20,18 @@ apps:
     daemon: simple
     install-mode: disable
 
+plugs:
+  network-proxy-admin:
+    interface: confdb
+    account: f22PSauKuNkwQTM9Wz67ZCjNACuSjjhN
+    view: network/proxy-admin
+    role: custodian
+  network-proxy-state:
+    interface: confdb
+    account: f22PSauKuNkwQTM9Wz67ZCjNACuSjjhN
+    view: network/proxy-state
+    role: custodian
+
 parts:
   test-snap:
     plugin: python
