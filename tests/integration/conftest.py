@@ -50,10 +50,9 @@ def local_hello_world_snap_path():
 @pytest.fixture
 def test_snap(local_test_snap_path):
     """Install the test snap."""
-    yield wait_for(snap_http.sideload)(
-        file_paths=[local_test_snap_path],
-        devmode=True,
-    )
+    wait_for(snap_http.sideload)(file_paths=[local_test_snap_path], devmode=True)
+
+    yield
 
     # teardown
     if is_snap_installed("test-snap"):

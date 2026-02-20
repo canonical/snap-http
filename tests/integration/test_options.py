@@ -35,7 +35,7 @@ def test_set_config(test_snap):
         "port": 8080,
     }
 
-    response = wait_for(snap_http.set_conf)(
+    response, _ = wait_for(snap_http.set_conf)(
         "test-snap",
         {
             "foo": {"bar": "qux", "baz": "quux"},
@@ -59,7 +59,7 @@ def test_set_specific_config_value(test_snap):
         "port": 8080,
     }
 
-    response = wait_for(snap_http.set_conf)(
+    response, _ = wait_for(snap_http.set_conf)(
         "test-snap",
         {"port": 443, "foo.baz": "lambda"},
     )
@@ -80,12 +80,11 @@ def test_set_config_with_invalid_key(test_snap):
         "port": 8080,
     }
 
-    response = wait_for(snap_http.set_conf)("test-snap", {"foo /bar": 80})
+    response, change = wait_for(snap_http.set_conf)("test-snap", {"foo /bar": 80})
     assert response.status_code == 202
 
-    change = snap_http.check_change(response.change).result
-    assert change["status"] == "Error"
-    assert 'invalid option name: "foo /bar"' in change["err"]
+    assert change.result["status"] == "Error"
+    assert 'invalid option name: "foo /bar"' in change.result["err"]
 
     # confirm settings haven't changed
     after = snap_http.get_conf("test-snap")
@@ -103,7 +102,7 @@ def test_unset_config_value(test_snap):
         "port": 8080,
     }
 
-    response = wait_for(snap_http.set_conf)(
+    response, _ = wait_for(snap_http.set_conf)(
         "test-snap",
         {"foo.bar": "meta"},
     )
@@ -112,7 +111,7 @@ def test_unset_config_value(test_snap):
     after = snap_http.get_conf("test-snap", keys=["foo.bar"])
     assert after.result == {"foo.bar": "meta"}
 
-    response = wait_for(snap_http.set_conf)(
+    response, _ = wait_for(snap_http.set_conf)(
         "test-snap",
         {"foo.bar": None},
     )
