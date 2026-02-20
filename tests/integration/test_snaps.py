@@ -40,7 +40,7 @@ def test_install_snap_from_the_store(hello_world_snap_declaration_assertion):
     """Test installing a snap from the store."""
     assert is_snap_installed("hello-world") is False
 
-    response = wait_for(snap_http.install)("hello-world")
+    response, _ = wait_for(snap_http.install)("hello-world")
     assert response.status_code == 202
     assert is_snap_installed("hello-world") is True
 
@@ -52,7 +52,7 @@ def test_remove_snap(test_snap):
     """Test removing a snap."""
     assert is_snap_installed("test-snap") is True
 
-    response = wait_for(snap_http.remove)("test-snap")
+    response, _ = wait_for(snap_http.remove)("test-snap")
     assert response.status_code == 202
     assert is_snap_installed("test-snap") is False
 
@@ -66,8 +66,9 @@ def test_sideload_snap_no_flags(
 
     # ack the assertion
     snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+
     # sideload
-    response = wait_for(snap_http.sideload)(
+    response, _ = wait_for(snap_http.sideload)(
         file_paths=[local_hello_world_snap_path],
     )
     assert response.status_code == 202
@@ -85,7 +86,7 @@ def test_sideload_snap_in_devmode_confinement(local_test_snap_path):
     """Test sideloading a snap in devmode confinement."""
     assert is_snap_installed("test-snap") is False
 
-    response = wait_for(snap_http.sideload)(
+    response, _ = wait_for(snap_http.sideload)(
         file_paths=[local_test_snap_path],
         devmode=True,
     )
@@ -104,7 +105,7 @@ def test_sideload_dangerous_snap(local_hello_world_snap_path):
     """Test sideloading a snap in dangerous mode."""
     assert is_snap_installed("hello-world") is False
 
-    response = wait_for(snap_http.sideload)(
+    response, _ = wait_for(snap_http.sideload)(
         file_paths=[local_hello_world_snap_path],
         dangerous=True,
     )
@@ -128,8 +129,9 @@ def test_sideload_snap_with_enforced_confinement(
 
     # ack the assertion
     snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+
     # sideload
-    response = wait_for(snap_http.sideload)(
+    response, _ = wait_for(snap_http.sideload)(
         file_paths=[local_hello_world_snap_path],
         jailmode=True,
     )
@@ -155,8 +157,9 @@ def test_sideload_multiple_snaps(
 
     # ack the assertion
     snap_http.add_assertion(hello_world_snap_declaration_assertion[0])
+
     # sideload
-    response = wait_for(snap_http.sideload)(
+    response, _ = wait_for(snap_http.sideload)(
         file_paths=[local_test_snap_path, local_hello_world_snap_path],
         devmode=True,
     )

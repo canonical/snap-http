@@ -10,22 +10,24 @@ import snap_http
 
 def wait_for(
     func: Callable[..., snap_http.SnapdResponse],
-) -> Callable[..., snap_http.SnapdResponse]:
+) -> Callable[..., tuple[snap_http.SnapdResponse, snap_http.SnapdResponse | None]]:
     """Call `func` and wait for changes to be applied in snapd."""
 
-    def wrapper(*args: Any, **kwargs: Any) -> snap_http.SnapdResponse:
+    def wrapper(
+        *args: Any, **kwargs: Any
+    ) -> tuple[snap_http.SnapdResponse, snap_http.SnapdResponse | None]:
         response = func(*args, **kwargs)
 
         if response.type == "sync":
-            return response
+            return response, None
 
-        change = response.change
+        change_id = response.change
         while True:
             time.sleep(0.1)
 
-            status = snap_http.check_change(change).result
-            if status["status"] in snap_http.COMPLETE_STATUSES:
-                return response
+            change_response = snap_http.check_change(change_id)
+            if change_response.result["status"] in snap_http.COMPLETE_STATUSES:
+                return response, change_response
 
     return wrapper
 
@@ -40,12 +42,7 @@ def is_snap_installed(snap_name: str) -> bool:
 
 def get_snap_details(snap_name: str) -> Dict[str, Any]:
     """Get the details of an installed snap."""
-    return next(
-        filter(
-            lambda snap: snap["name"] == snap_name,
-            snap_http.list().result,
-        )
-    )
+    return snap_http.list(snaps=[snap_name]).result[0]
 
 
 # Assertions

@@ -75,7 +75,7 @@ def test_get_services_only(test_snap):
 
 def test_start_single_service(test_snap):
     """Test starting a single service."""
-    response = wait_for(snap_http.start)("test-snap.hello-svc")
+    response, _ = wait_for(snap_http.start)("test-snap.hello-svc")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -90,7 +90,7 @@ def test_start_single_service(test_snap):
 
 def test_start_all_services_in_single_snap(test_snap):
     """Test starting all services in a single snap."""
-    response = wait_for(snap_http.start)("test-snap")
+    response, _ = wait_for(snap_http.start)("test-snap")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -105,7 +105,7 @@ def test_start_all_services_in_single_snap(test_snap):
 
 def test_start_multiple_services(test_snap):
     """Test starting multiple services individually."""
-    response = wait_for(snap_http.start_all)(
+    response, _ = wait_for(snap_http.start_all)(
         ["test-snap.hello-svc", "test-snap.bye-svc"]
     )
     assert response.status_code == 202
@@ -122,7 +122,7 @@ def test_start_multiple_services(test_snap):
 
 def test_start_and_enable_service(test_snap):
     """Test starting and enabling a single service."""
-    response = wait_for(snap_http.start)("test-snap.hello-svc", enable=True)
+    response, _ = wait_for(snap_http.start)("test-snap.hello-svc", enable=True)
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -136,7 +136,7 @@ def test_stop_single_service(test_snap):
     """Test stopping a single service."""
     wait_for(snap_http.start)("test-snap.hello-svc")
 
-    response = wait_for(snap_http.stop)("test-snap.hello-svc")
+    response, _ = wait_for(snap_http.stop)("test-snap.hello-svc")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -150,7 +150,7 @@ def test_stop_all_services_in_single_snap(test_snap):
     """Test stopping all services in a single snap."""
     wait_for(snap_http.start)("test-snap")
 
-    response = wait_for(snap_http.stop)("test-snap")
+    response, _ = wait_for(snap_http.stop)("test-snap")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -167,7 +167,7 @@ def test_stop_multiple_services(test_snap):
     """Test stopping multiple services individually."""
     wait_for(snap_http.start)("test-snap")
 
-    response = wait_for(snap_http.stop_all)(
+    response, _ = wait_for(snap_http.stop_all)(
         ["test-snap.hello-svc", "test-snap.bye-svc"]
     )
     assert response.status_code == 202
@@ -186,7 +186,7 @@ def test_stop_and_disable_service(test_snap):
     """Test stopping and disabling a single service."""
     wait_for(snap_http.start)("test-snap", enable=True)
 
-    response = wait_for(snap_http.stop)("test-snap.hello-svc", disable=True)
+    response, _ = wait_for(snap_http.stop)("test-snap.hello-svc", disable=True)
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -203,7 +203,7 @@ def test_restart_single_service(test_snap):
     """Test restarting a single service."""
     wait_for(snap_http.start)("test-snap.hello-svc")
 
-    response = wait_for(snap_http.restart)("test-snap.hello-svc")
+    response, _ = wait_for(snap_http.restart)("test-snap.hello-svc")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -217,7 +217,7 @@ def test_restart_all_services_in_single_snap(test_snap):
     """Test restarting all services in a single snap."""
     wait_for(snap_http.start)("test-snap")
 
-    response = wait_for(snap_http.restart)("test-snap")
+    response, _ = wait_for(snap_http.restart)("test-snap")
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
@@ -234,7 +234,7 @@ def test_restart_multiple_services(test_snap):
     """Test restarting multiple services individually."""
     wait_for(snap_http.start)("test-snap")
 
-    response = wait_for(snap_http.restart_all)(
+    response, _ = wait_for(snap_http.restart_all)(
         ["test-snap.hello-svc", "test-snap.bye-svc"]
     )
     assert response.status_code == 202
@@ -253,7 +253,7 @@ def test_reload_service(test_snap):
     """Test reloading a single service."""
     wait_for(snap_http.start)("test-snap")
 
-    response = wait_for(snap_http.restart)("test-snap.hello-svc", reload=True)
+    response, _ = wait_for(snap_http.restart)("test-snap.hello-svc", reload=True)
     assert response.status_code == 202
 
     after = snap_http.get_apps(names=["test-snap"], services_only=True)
