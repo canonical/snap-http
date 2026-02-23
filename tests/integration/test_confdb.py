@@ -6,7 +6,7 @@ from tests.utils import parse_assertion, wait_for
 
 def test_set_confdb(network_confdb_setup):
     """Test setting confdb values."""
-    response = wait_for(snap_http.set_confdb)(
+    response, change = wait_for(snap_http.set_confdb)(
         NETWORK_CONFDB_ACCOUNT_ID,
         "network",
         "proxy-admin",
@@ -17,7 +17,6 @@ def test_set_confdb(network_confdb_setup):
     )
     assert response.status_code == 202
 
-    change = snap_http.check_change(response.change)
     assert change.result["status"] == "Done"
 
 
@@ -30,14 +29,12 @@ def test_get_confdb(network_confdb_setup):
         {"https.url": "https://proxy.example.com", "https.bypass": ["localhost"]},
     )
 
-    response = wait_for(snap_http.get_confdb)(
+    response, change = wait_for(snap_http.get_confdb)(
         NETWORK_CONFDB_ACCOUNT_ID, "network", "proxy-state"
     )
     assert response.status_code == 202
 
-    change = snap_http.check_change(response.change)
     assert change.result["status"] == "Done"
-
     values = change.result["data"]["values"]
     assert values["https"]["url"] == "https://proxy.example.com"
     assert values["https"]["bypass"] == ["localhost"]
@@ -55,7 +52,7 @@ def test_get_confdb_with_keys(network_confdb_setup):
         },
     )
 
-    response = wait_for(snap_http.get_confdb)(
+    response, change = wait_for(snap_http.get_confdb)(
         NETWORK_CONFDB_ACCOUNT_ID,
         "network",
         "proxy-state",
@@ -63,7 +60,6 @@ def test_get_confdb_with_keys(network_confdb_setup):
     )
     assert response.status_code == 202
 
-    change = snap_http.check_change(response.change)
     values = change.result["data"]["values"]
     assert "https" in values
     assert "ftp" not in values
@@ -88,8 +84,8 @@ def test_unset_confdb(network_confdb_setup):
         {"https": None},
     )
 
-    response = wait_for(snap_http.get_confdb)(NETWORK_CONFDB_ACCOUNT_ID, "network", "proxy-state")
-    values = snap_http.check_change(response.change).result["data"]["values"]
+    _, change = wait_for(snap_http.get_confdb)(NETWORK_CONFDB_ACCOUNT_ID, "network", "proxy-state")
+    values = change.result["data"]["values"]
     assert "https" not in values
     assert "ftp" in values
 
