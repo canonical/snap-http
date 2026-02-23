@@ -1,7 +1,7 @@
 import pathlib
 import shutil
 import time
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import yaml
 
@@ -10,12 +10,12 @@ import snap_http
 
 def wait_for(
     func: Callable[..., snap_http.SnapdResponse],
-) -> Callable[..., tuple[snap_http.SnapdResponse, snap_http.SnapdResponse | None]]:
+) -> Callable[..., Tuple[snap_http.SnapdResponse, Optional[snap_http.SnapdResponse]]]:
     """Call `func` and wait for changes to be applied in snapd."""
 
     def wrapper(
         *args: Any, **kwargs: Any
-    ) -> tuple[snap_http.SnapdResponse, snap_http.SnapdResponse | None]:
+    ) -> Tuple[snap_http.SnapdResponse, Optional[snap_http.SnapdResponse]]:
         response = func(*args, **kwargs)
 
         if response.type == "sync":
