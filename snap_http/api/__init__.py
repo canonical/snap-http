@@ -49,6 +49,7 @@ from .snaps import (
     switch_all,
     unhold,
     unhold_all,
+    logs,
 )
 from .snapshots import forget_snapshot, save_snapshot, snapshots
 from .systems import (
