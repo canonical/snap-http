@@ -23,6 +23,7 @@ from .api import (
     switch_all,
     unhold,
     unhold_all,
+    logs,
     list,
     list_all,
     get_conf,

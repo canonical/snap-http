@@ -926,3 +926,32 @@ def test_list_all(monkeypatch):
     result = api.list_all()
 
     assert result == mock_response
+
+@pytest.mark.parametrize(
+    ("names", "entries", "expected_params"),
+    [
+        (None, 10, {"n":10}),
+        (["snapd", "core24"], 10, {"names": "snapd,core24", "n": 10}),
+        (["snapd", "core24"], 100, {"names": "snapd,core24", "n": 100}),
+    ]
+)
+def test_logs(monkeypatch, names, entries, expected_params):
+    """`api.logs` returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=[{"title": "placeholder1"}, {"title": "placeholder2"}],
+    )
+
+    def mock_get(path, query_params):
+        assert path == "/logs"
+        assert query_params == expected_params
+
+        return mock_response
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    result = api.logs(names, entries)
+
+    assert result == mock_response

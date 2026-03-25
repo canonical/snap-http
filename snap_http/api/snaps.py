@@ -261,3 +261,14 @@ def list_all() -> SnapdResponse:
     """GETs a list of all installed snaps including disabled ones.
     """
     return http.get("/snaps?select=all")
+
+
+def logs(names: List[str], entries: int = 10) -> SnapdResponse:
+    """GETs snap logs.
+    """
+    query_params: Dict[str, Union[str, int]] = {}
+
+    if names is not None:
+        query_params["names"] = ",".join(names)
+    query_params["n"] = entries
+    return http.get("/logs", query_params=query_params)
