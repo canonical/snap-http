@@ -149,6 +149,29 @@ def test_get_non_json_data(use_snapd_response, monkeypatch):
     )
 
 
+@pytest.mark.parametrize("content_type", ["application/x-ndjson", "application/json-seq"])
+def test_get_ndjson_data(use_snapd_response, monkeypatch, content_type):
+    """`http.get` parses ndjson responses into a list of dicts."""
+    monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
+    mock_response = (
+        b'\x1e{"timestamp":"2026-03-25T04:57:10Z","message":"hello","sid":"systemd","pid":"1"}\n'
+        b'\x1e{"timestamp":"2026-03-25T04:57:11Z","message":"world","sid":"systemd","pid":"2"}\n'
+    )
+    use_snapd_response(200, mock_response, content_type)
+
+    result = http.get("/logs")
+
+    assert result == types.SnapdResponse(
+        type="sync",
+        status_code=200,
+        status="OK",
+        result=[
+            {"timestamp": "2026-03-25T04:57:10Z", "message": "hello", "sid": "systemd", "pid": "1"},
+            {"timestamp": "2026-03-25T04:57:11Z", "message": "world", "sid": "systemd", "pid": "2"},
+        ],
+    )
+
+
 def test_get_returns_a_warning(use_snapd_response, monkeypatch):
     """`http.get` returns a `types.SnapdResponse.`"""
     monkeypatch.setattr(http, "SNAPD_SOCKET", FAKE_SNAPD_SOCKET)
