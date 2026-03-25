@@ -2,7 +2,7 @@
 name = "snap-http"
 version = "1.10.1"
 description = "A library for interacting with snapd via its REST API."
-authors = ["Mitch Burton <mitch.burton@canonical.com>"]
+authors = ["Mitch Burton <mitch.burton@canonical.com>", "Stephen Mwangi <mail@stephenmwangi.com>"]
 readme = "README.md"
 exclude = [
     "tests/"
