@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.12.0 (2026-03-26)
+
+ - Added `get_confdb`, `set_confdb`, `delegate_confdb`, and `undelegate_confdb` API methods for
+   managing confdb
+ - Added `logs` API for querying snap logs
+ - Fix: added support for application/json-seq and /x-ndjson response data
+
+
 ## 1.10.1 (2025-10-27)
 
  - Fix: add missing systems endpoints to public API
