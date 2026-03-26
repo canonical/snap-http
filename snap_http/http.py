@@ -98,15 +98,25 @@ def _make_request(
     if response.status >= 400:
         raise SnapdHttpException(response_body)
 
-    response_type = response.getheader("Content-Type")
-    if response_type == "application/json":
+    content_type = response.getheader("Content-Type")
+    if content_type == "application/json":
         return json.loads(response_body)
+    elif content_type in ("application/json-seq", "application/x-ndjson"):
+        records = [
+            json.loads(record)
+            for record in response_body.split(b"\x1e")
+            if record.strip()
+        ]
+        return _build_envelope(response, records)
     else:  # other types like application/x.ubuntu.assertion
-        response_code = response.getcode()
-        is_async = response_code == 202
-        return {
-            "type": "async" if is_async else "sync",
-            "status_code": response_code,
-            "status": responses[response_code],
-            "result": response_body,
-        }
+        return _build_envelope(response, response_body)
+
+
+def _build_envelope(response: HTTPResponse, result: Any) -> Dict[str, Any]:
+    response_code = response.getcode()
+    return {
+        "type": "async" if response_code == 202 else "sync",
+        "status_code": response_code,
+        "status": responses[response_code],
+        "result": result,
+    }

@@ -169,3 +169,19 @@ def test_sideload_multiple_snaps(
     assert is_snap_installed("hello-world") is True
 
     wait_for(snap_http.remove_all)(["test-snap", "hello-world"])
+
+
+def test_logs(test_snap):
+    """Test getting snap logs."""
+    wait_for(snap_http.start)("test-snap.bye-svc")
+
+    response = snap_http.logs(names=["test-snap"], entries=5)
+    assert response.status_code == 200
+
+    assert len(response.result) > 0
+    for entry in response.result:
+        assert "timestamp" in entry
+        assert "message" in entry
+        assert "sid" in entry
+        assert "pid" in entry
+    assert any("test-snap.bye-svc" in entry["message"] for entry in response.result)

@@ -941,7 +941,10 @@ def test_logs(monkeypatch, names, entries, expected_params):
         type="sync",
         status_code=200,
         status="OK",
-        result=[{"title": "placeholder1"}, {"title": "placeholder2"}],
+        result=[
+            {"timestamp": "2026-03-25T04:57:10Z", "message": "hello", "sid": "systemd", "pid": "1"},
+            {"timestamp": "2026-03-25T04:57:11Z", "message": "world", "sid": "systemd", "pid": "2"},
+        ],
     )
 
     def mock_get(path, query_params):
