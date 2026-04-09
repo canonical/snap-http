@@ -27,7 +27,7 @@ def test_add_recovery_key():
     generate_result = snap_http.generate_recovery_key().result
     key_id = generate_result["key-id"]
 
-    response = wait_for(snap_http.update_recovery_key)(key_id, "test-add-key", False)
+    response, _ = wait_for(snap_http.update_recovery_key)(key_id, "test-add-key", False)
     assert response.status_code == 202
 
     keyslots = snap_http.get_keyslots().result
@@ -37,7 +37,7 @@ def test_add_recovery_key():
 def test_replace_recovery_key():
     """Test replacing a recovery key."""
     key_id = snap_http.generate_recovery_key().result["key-id"]
-    response = wait_for(snap_http.update_recovery_key)(
+    response, _ = wait_for(snap_http.update_recovery_key)(
         key_id, "test-replace-key", False
     )
     assert response.status_code == 202
@@ -48,7 +48,7 @@ def test_replace_recovery_key():
     )
 
     key_id = snap_http.generate_recovery_key().result["key-id"]
-    response = wait_for(snap_http.update_recovery_key)(key_id, "test-replace-key", True)
+    response, _ = wait_for(snap_http.update_recovery_key)(key_id, "test-replace-key", True)
     assert response.status_code == 202
 
     keyslots = snap_http.get_keyslots().result

@@ -1,8 +1,7 @@
 name: Integration Test with TPM and FDE
 
 on:
-  schedule:
-    - cron: '0 0 * * 0'
+  workflow_call:
   workflow_dispatch:
 
 jobs:

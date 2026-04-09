@@ -9,3 +9,5 @@ on:
 jobs:
   snapd_integration_test:
     uses: ./.github/workflows/integration-test.yml
+  tpm_integration_test:
+    uses: ./.github/workflows/integration-tpm.yml
