@@ -2,6 +2,7 @@ name: Integration Test
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   snapd_integration_test:
