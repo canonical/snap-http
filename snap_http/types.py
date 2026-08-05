@@ -38,6 +38,7 @@ class SnapdResponse:
     change: Union[str, None] = None
     warning_timestamp: Union[str, None] = None
     warning_count: Union[int, None] = None
+    suggested_currency: Union[str, None] = None
 
     @classmethod
     def from_http_response(
