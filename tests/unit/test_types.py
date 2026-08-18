@@ -108,3 +108,22 @@ def test_assertion_data_serialization():
     body = types.AssertionData("assertion-header: value\n\nsignature")
     assert body.content_type == "application/x.ubuntu.assertion"
     assert body.serialized == b"assertion-header: value\n\nsignature"
+
+
+def test_data_serialization_filter():
+    """Test filtering of unknown response data fields."""
+    mock_response = {
+        "type": "async",
+        "status_code": 200,
+        "status": "Accepted",
+        "result": None,
+        "unknown": "bogus",
+    }
+
+    resp = types.SnapdResponse.from_http_response(mock_response)
+
+    assert not hasattr(resp, "unknown")
+    assert resp.type == "async"
+    assert resp.status_code == 200
+    assert resp.status == "Accepted"
+    assert resp.result is None
