@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from abc import ABC, abstractproperty
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import cached_property
 from io import BytesIO
 from pathlib import Path
@@ -38,13 +38,21 @@ class SnapdResponse:
     change: Union[str, None] = None
     warning_timestamp: Union[str, None] = None
     warning_count: Union[int, None] = None
+    suggested_currency: Union[str, None] = None
 
     @classmethod
     def from_http_response(
         cls: Type["SnapdResponse"], response: Dict[str, Any]
     ) -> SnapdResponse:
-        return cls(**{k.replace("-", "_"): v for k, v in response.items()})
+        # In case snapd returns to us unknown fields in its response
+        cls_fields = {f.name for f in fields(cls)}
+        filtered_fields = {}
 
+        for k, v in response.items():
+            key = k.replace("-", "_")
+            if key in cls_fields:
+                filtered_fields[key] = v
+        return cls(**filtered_fields)
 
 class AbstractRequestBody(ABC):
     """An abstract base class for the request body of a HTTP request."""
