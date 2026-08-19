@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.1 (2026-08-19)
+
+ - Fixed an exception caused by unknown fields in the snapd JSON response payload
+
 ## 1.12.0 (2026-03-26)
 
  - Added `get_confdb`, `set_confdb`, `delegate_confdb`, and `undelegate_confdb` API methods for
