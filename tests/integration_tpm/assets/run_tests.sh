@@ -5,5 +5,6 @@ mountpoint -q /mnt/host || sudo mount -t 9p -o trans=virtio hostshare /mnt/host
 cd /mnt/host/
 
 # run integration_tpm tests
-sudo poetry install
-sudo poetry run pytest tests/integration_tpm
+curl -LsSf https://astral.sh/uv/install.sh | sudo sh
+sudo /root/.local/bin/uv sync
+sudo /root/.local/bin/uv run pytest tests/integration_tpm

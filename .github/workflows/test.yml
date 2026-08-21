@@ -11,36 +11,34 @@ jobs:
     name: lint and typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: install poetry and dependencies
-        run: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          pipx install poetry==2.3.1
-          poetry install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: install uv and dependencies
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+      - run: uv sync
       - name: lint
-        run: poetry run ruff check .
+        run: uv run ruff check .
       - name: typecheck
-        run: poetry run mypy snap_http/
+        run: uv run mypy snap_http/
 
   unit_test:
     name: tox unit test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: install poetry and dependencies
-        run: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          pipx install poetry==2.3.1
-          poetry install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: install uv and dependencies
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+      - run: uv sync
       - name: install additional python versions
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa
           sudo apt-get install -y python3.8 python3.9 python3.10 python3.11 python3.12 python3.13 python3.14
           sudo apt-get install -y python3.8-distutils python3.9-distutils
       - name: tox unit test
-        run: poetry run tox
+        run: uv run tox
 
   integration_test:
     uses: ./.github/workflows/integration-test.yml
