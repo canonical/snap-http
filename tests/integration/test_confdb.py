@@ -1,4 +1,7 @@
+import pytest
+
 import snap_http
+from snap_http.http import SnapdHttpException
 
 from tests.integration.conftest import NETWORK_CONFDB_ACCOUNT_ID
 from tests.utils import parse_assertion, wait_for
@@ -13,6 +16,7 @@ def test_set_confdb(network_confdb_setup):
         {
             "ftp.url": "ftp://proxy.example.com",
             "ftp.bypass": ["*.company.internal"],
+            "ftp.enabled": False,
         },
     )
     assert response.status_code == 202
@@ -26,7 +30,13 @@ def test_get_confdb(network_confdb_setup):
         NETWORK_CONFDB_ACCOUNT_ID,
         "network",
         "proxy-admin",
-        {"https.url": "https://proxy.example.com", "https.bypass": ["localhost"]},
+        {
+            "https": {
+                "url": "https://proxy.example.com",
+                "bypass": ["localhost"],
+                "enabled": True,
+            }
+        },
     )
 
     response, change = wait_for(snap_http.get_confdb)(
@@ -38,6 +48,7 @@ def test_get_confdb(network_confdb_setup):
     values = change.result["data"]["values"]
     assert values["https"]["url"] == "https://proxy.example.com"
     assert values["https"]["bypass"] == ["localhost"]
+    assert values["https"]["enabled"]
 
 
 def test_get_confdb_with_keys(network_confdb_setup):
@@ -65,6 +76,57 @@ def test_get_confdb_with_keys(network_confdb_setup):
     assert "ftp" not in values
 
 
+def test_get_confdb_with_constraints_filters(network_confdb_setup):
+    """Test that `constraints` filters the returned protocols by `enabled`."""
+    wait_for(snap_http.set_confdb)(
+        NETWORK_CONFDB_ACCOUNT_ID,
+        "network",
+        "proxy-admin",
+        {
+            "https.url": "https://proxy.example.com",
+            "https.enabled": True,
+            "ftp.url": "ftp://proxy.example.com",
+            "ftp.enabled": False,
+        },
+    )
+
+    response, change = wait_for(snap_http.get_confdb)(
+        NETWORK_CONFDB_ACCOUNT_ID,
+        "network",
+        "proxy-admin",
+        constraints={"enabled": True},
+    )
+    assert response.status_code == 202
+    assert change.result["status"] == "Done"
+
+    values = change.result["data"]["values"]
+    assert "https" in values
+    assert "ftp" not in values
+
+
+def test_get_confdb_with_unmatched_constraints(network_confdb_setup):
+    """Test that constraints not matching any placeholder in the view fail the request."""
+    wait_for(snap_http.set_confdb)(
+        NETWORK_CONFDB_ACCOUNT_ID,
+        "network",
+        "proxy-admin",
+        {"https.url": "https://proxy.example.com", "https.enabled": True},
+    )
+
+    with pytest.raises(SnapdHttpException) as exc_info:
+        snap_http.get_confdb(
+            NETWORK_CONFDB_ACCOUNT_ID,
+            "network",
+            "proxy-admin",
+            keys=["https"],
+            constraints={"foo": "bar"},
+        )
+
+    error = exc_info.value.json
+    assert error["status-code"] == 400
+    assert 'no placeholder for constraint "foo"' in error["result"]["message"]
+
+
 def test_unset_confdb(network_confdb_setup):
     """Test unsetting a confdb value by setting it to None."""
     wait_for(snap_http.set_confdb)(
@@ -84,7 +146,9 @@ def test_unset_confdb(network_confdb_setup):
         {"https": None},
     )
 
-    _, change = wait_for(snap_http.get_confdb)(NETWORK_CONFDB_ACCOUNT_ID, "network", "proxy-state")
+    _, change = wait_for(snap_http.get_confdb)(
+        NETWORK_CONFDB_ACCOUNT_ID, "network", "proxy-state"
+    )
     values = change.result["data"]["values"]
     assert "https" not in values
     assert "ftp" in values
