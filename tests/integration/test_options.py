@@ -84,7 +84,7 @@ def test_set_config_with_invalid_key(test_snap):
     assert response.status_code == 202
 
     assert change.result["status"] == "Error"
-    assert 'invalid option name: "foo /bar"' in change.result["err"]
+    assert 'invalid option name "foo /bar"' in change.result["err"]
 
     # confirm settings haven't changed
     after = snap_http.get_conf("test-snap")

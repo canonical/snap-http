@@ -1,3 +1,5 @@
+import json
+
 from snap_http import api, http, types
 
 
@@ -48,6 +50,56 @@ def test_get_confdb_with_keys(monkeypatch):
     assert result == mock_response
 
 
+def test_get_confdb_with_constraints(monkeypatch):
+    """`api.get_confdb` with constraints parameter returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_get(path, query_params):
+        assert path == "/confdb/system/network/wifi-state"
+        assert query_params == {"constraints": json.dumps({"protocol": "https"})}
+
+        return mock_response
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    result = api.get_confdb(
+        "system", "network", "wifi-state", constraints={"protocol": "https"}
+    )
+
+    assert result == mock_response
+
+
+def test_get_confdb_with_access_timeout(monkeypatch):
+    """`api.get_confdb` with access_timeout parameter returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_get(path, query_params):
+        assert path == "/confdb/system/network/wifi-state"
+        assert query_params == {"access-timeout": "5s"}
+
+        return mock_response
+
+    monkeypatch.setattr(http, "get", mock_get)
+
+    result = api.get_confdb(
+        "system", "network", "wifi-state", access_timeout="5s"
+    )
+
+    assert result == mock_response
+
+
 def test_set_confdb(monkeypatch):
     """`api.set_confdb` returns a `types.SnapdResponse`."""
     mock_response = types.SnapdResponse(
@@ -71,6 +123,38 @@ def test_set_confdb(monkeypatch):
         "network",
         "wifi-admin",
         {"ssid": "my-network", "password": None},
+    )
+
+    assert result == mock_response
+
+
+def test_set_confdb_with_access_timeout(monkeypatch):
+    """`api.set_confdb` with access_timeout parameter returns a `types.SnapdResponse`."""
+    mock_response = types.SnapdResponse(
+        type="async",
+        status_code=202,
+        status="Accepted",
+        result=None,
+        change="1",
+    )
+
+    def mock_put(path, body):
+        assert path == "/confdb/system/network/wifi-admin"
+        assert body == {
+            "values": {"ssid": "my-network"},
+            "options": {"access-timeout": "5s"},
+        }
+
+        return mock_response
+
+    monkeypatch.setattr(http, "put", mock_put)
+
+    result = api.set_confdb(
+        "system",
+        "network",
+        "wifi-admin",
+        {"ssid": "my-network"},
+        access_timeout="5s",
     )
 
     assert result == mock_response
