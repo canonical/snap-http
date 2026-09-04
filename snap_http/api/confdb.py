@@ -25,9 +25,9 @@ def get_confdb(
     :param constraints: A mapping of parameter names to values, used to constrain and
         filter the data returned according to the placeholders and field filters in
         the matched view rules.
-    :param access_timeout: How long to wait for the confdb access to complete, as a
-        Go-style duration string (e.g. "5s", "500ms"). If not provided, snapd's
-        default timeout applies.
+    :param access_timeout: How long to wait for other confdb accesses to complete, as a
+        Go-style duration string (e.g. "5s", "500ms", "1h3m0.5s"). If not provided, snapd's
+        default timeout is applied.
     """
     query_params = {}
     if keys:
@@ -59,9 +59,9 @@ def set_confdb(
     :param view: The view name.
     :param config: A key-value mapping of configuration paths to their values.
         Use `None` to unset a value.
-    :param access_timeout: How long to wait for the confdb access to complete, as a
-        Go-style duration string (e.g. "5s", "500ms"). If not provided, snapd's
-        default timeout applies.
+    :param access_timeout: How long to wait for other confdb accesses to complete, as a
+        Go-style duration string (e.g. "5s", "500ms", "1h3m0.5s"). If not provided, snapd's
+        default timeout is applied.
     """
     body: Dict[str, Any] = {"values": config}
 
