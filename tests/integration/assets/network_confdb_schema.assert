@@ -1,11 +1,14 @@
 type: confdb-schema
 authority-id: f22PSauKuNkwQTM9Wz67ZCjNACuSjjhN
-revision: 1
+revision: 7
 account-id: f22PSauKuNkwQTM9Wz67ZCjNACuSjjhN
 name: network
-timestamp: 2026-01-21T10:19:23+00:00
+timestamp: 2026-09-02T10:49:43Z
 views:
   proxy-admin:
+    parameters:
+      enabled:
+        presence: optional
     rules:
       -
         access: read-write
@@ -16,20 +19,23 @@ views:
           -
             request: bypass
             storage: bypass
+          -
+            request: enabled
+            storage: enabled
         request: {protocol}
-        storage: proxy.{protocol}
+        storage: v1.proxy.{protocol}[.enabled={enabled}]
   proxy-state:
     rules:
       -
         access: read
         request: https
-        storage: proxy.https
+        storage: v1.proxy.https
       -
         access: read
         request: ftp
-        storage: proxy.ftp
-body-length: 487
-sign-key-sha3-384: xkd_Y2ay5N2Uo14v_wsCtfVJYLAVbJgxbiKM8Ne4mZBflaROriZgk2nb5i9Oebum
+        storage: v1.proxy.ftp
+body-length: 626
+sign-key-sha3-384: -vtoKUiMBQW08EG3HlyFYUxxa7Svz2xhg6baPpjUyDvH0MPeCfogBQoAaneZuPbp
 
 {
   "storage": {
@@ -44,16 +50,21 @@ sign-key-sha3-384: xkd_Y2ay5N2Uo14v_wsCtfVJYLAVbJgxbiKM8Ne4mZBflaROriZgk2nb5i9Oe
       }
     },
     "schema": {
-      "proxy": {
-        "keys": "${protocol}",
-        "values": {
-          "schema": {
-            "bypass": {
-              "type": "array",
-              "unique": true,
-              "values": "string"
-            },
-            "url": "string"
+      "v1": {
+        "schema": {
+          "proxy": {
+            "keys": "${protocol}",
+            "values": {
+              "schema": {
+                "bypass": {
+                  "type": "array",
+                  "unique": true,
+                  "values": "string"
+                },
+                "enabled": "bool",
+                "url": "string"
+              }
+            }
           }
         }
       }
@@ -61,13 +72,13 @@ sign-key-sha3-384: xkd_Y2ay5N2Uo14v_wsCtfVJYLAVbJgxbiKM8Ne4mZBflaROriZgk2nb5i9Oe
   }
 }
 
-AcLBcwQAAQoAHRYhBHCftZeyXSJlNBvC+h+HHdMBlPLtBQJpjdWQAAoJEB+HHdMBlPLtomUP/iFa
-BxCtGrwOzgVNbzmkSJXqf0LRbTGLyQQkCe5lV/X9PKBa4J+I4y7QGrUDAXQwvsSUJgcsR+99NgnA
-IJE6mfZos8IXK/1TKRPUM/umeb4CfcLu6xuCwc/PFZnJhxTOK3FQddONXCXqCfQStx4KvRIfPu/S
-nybbuMNQrepcvDSMY1YF18nX3kmC4WXnsySFJI5EDkdDNDC5C4mM85khyORdApHXSUewNVWghIP7
-JjB0NeYxysJl3rrRcppfeGpB5Akx7lVJiTmGkCzvkDTymizMj4S6sveBGn5SLQPZz44X6jGG95il
-EE//X9bM/bEEe2+s0gzIy4OWdDVVFU/X1uxzC6jlI+gwSpbhExKStdapC8nU7phoFvIlABLw7h2L
-wFC7n84l95fR6f+9FPm1UKFqoBTO4pexTcihA3SNrKvD3oFyU3GnWZgfI1rgMOVdQnOYrOuaQMCO
-lLZG0GgktRb9l/XekJexadsAnbhe8AF1Fb4pUM6eqAoIryy4CRetonlPyCDcFtOy+O4ARgsqYDfi
-7YxA1g29kjYDox1Q/5Sb64ZRC68XAyCWF19E3sj4I/MLQ7/c429q5PF2AMMuoB3Z3Do6LmE3awlN
-esGfztMtfdb2nRoH595JYbd55L8szS9zvJziSYXWCQ27BOJdxTU8JJaMGvpUOMbjD3YSqGb3
+AcLBcwQAAQoAHRYhBCNznT5W1VXlw/5olsce514tVmTYBQJql/9IAAoJEMce514tVmTYYOkQALFX
+XkwnfQC0W8gDFRpN7puC2e9W+NZnn5DcgT+7Sz0RjljKaQWyN7VE+sjziTuboQw2HqXtVFF7x1Zz
+WBB+tHkOOBE2Mq5XFbqNSMHRubGnNk7TBbuxrZWwRQYp8OxrWBj7wWJsiyV4RNJNdLOoclXirP+I
+Kjnf1zExMp4W6JJtd51YBP09JWULi1SY/Ud4kTt2NckC7wp6tq2Mpg4eYr9Igugp7sSwLBxE0bYK
+nNoJ045vZn0c8H3pwqtOjhqzASiK5DYeGrLIJ+Mmo8ZqG0UGopHYv5w3ItBfr0wlz3wYWk3GVp00
+PWDsRyPzg/gFrWIKO1c3h8uCm2fmn6zaEhWNRPHuH9bOM9tRR4ONY+T6ehIxPn3cTKVZxwPC+Jsa
+mPWSysZtHVENO1ZIHI55xCaPoBp3g3hpVFS793+H4xxAP9qkiYVrrA04KV6GvFpkJBH5PR6XlJqY
+Y9yI4HuKtU7Z3holbgL7IzPml5ULz5d1X8Bazs/1DsBCMxsVmsKEFa8pZGSQg5hwPK9iTmdTIzYm
+cIy8CMQqZV+KKmet8rIATEI/E7LYu3dUD+qR04awxjBrA9bAS5KuikLTfKCH7MOBFOZqq4IwZS6T
+dQsg619ijtZGoXLMFuBfUmRrjG8h2fpzWxNx2CapfoYmIzr5OOS0QnNFXBgQ8IUIeygF6inH

@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List, Optional
 
 from .. import http
@@ -10,6 +11,8 @@ def get_confdb(
     view: str,
     *,
     keys: Optional[List[str]] = None,
+    constraints: Optional[Dict[str, Any]] = None,
+    access_timeout: Optional[str] = None,
 ) -> SnapdResponse:
     """Get configuration values from confdb.
 
@@ -19,10 +22,22 @@ def get_confdb(
     :param keys: Retrieve the configuration for these specific `keys`. These paths
         refer to rules defined in the view. If not provided, the GET will match all
         readable view rules and return any stored values for those.
+    :param constraints: A mapping of parameter names to values, used to constrain and
+        filter the data returned according to the placeholders and field filters in
+        the matched view rules.
+    :param access_timeout: How long to wait for the confdb access to complete, as a
+        Go-style duration string (e.g. "5s", "500ms"). If not provided, snapd's
+        default timeout applies.
     """
     query_params = {}
     if keys:
         query_params["keys"] = ",".join(keys)
+
+    if constraints:
+        query_params["constraints"] = json.dumps(constraints)
+
+    if access_timeout:
+        query_params["access-timeout"] = access_timeout
 
     return http.get(
         f"/confdb/{account}/{confdb_schema}/{view}", query_params=query_params
@@ -30,7 +45,12 @@ def get_confdb(
 
 
 def set_confdb(
-    account: str, confdb_schema: str, view: str, config: Dict[str, Any]
+    account: str,
+    confdb_schema: str,
+    view: str,
+    config: Dict[str, Any],
+    *,
+    access_timeout: Optional[str] = None,
 ) -> SnapdResponse:
     """Set configuration values in confdb.
 
@@ -39,8 +59,14 @@ def set_confdb(
     :param view: The view name.
     :param config: A key-value mapping of configuration paths to their values.
         Use `None` to unset a value.
+    :param access_timeout: How long to wait for the confdb access to complete, as a
+        Go-style duration string (e.g. "5s", "500ms"). If not provided, snapd's
+        default timeout applies.
     """
     body: Dict[str, Any] = {"values": config}
+
+    if access_timeout:
+        body["options"] = {"access-timeout": access_timeout}
 
     return http.put(f"/confdb/{account}/{confdb_schema}/{view}", body)
 
