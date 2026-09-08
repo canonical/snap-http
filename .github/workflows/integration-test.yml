@@ -8,19 +8,15 @@ jobs:
   snapd_integration_test:
     strategy:
       matrix:
-        os: ["ubuntu-24.04", "ubuntu-22.04"]
+        os: ["ubuntu-26.04", "ubuntu-24.04", "ubuntu-22.04"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
-      - name: install python dependencies
-        run: |
-          sudo apt-get update
-
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          pipx install poetry==2.3.1
-          poetry config virtualenvs.in-project true  # so sudo can find the venv
-          poetry install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: install uv and dependencies
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+      - run: uv sync
       - name: snapd setup
         run: |
           sudo apt-get install -y snapd
@@ -50,4 +46,4 @@ jobs:
       - name: integration test
         run: |
           # access to the snapd socket requires root privileges
-          sudo "$(which poetry)" run pytest tests/integration
+          sudo "$(which uv)" run pytest tests/integration
