@@ -92,9 +92,9 @@ def network_confdb_setup(test_snap, network_confdb_schema_assertion):
     assertion, _ = network_confdb_schema_assertion
     snap_http.add_assertion(assertion)
 
-    # Enable confdb & confdb-control features
+    # Enable confdb & remote-device-management features
     wait_for(snap_http.set_conf)("system", {"experimental.confdb": True})
-    wait_for(snap_http.set_conf)("system", {"experimental.confdb-control": True})
+    wait_for(snap_http.set_conf)("system", {"experimental.remote-device-management": True})
 
     # Connect custodian snap to confdb plugs
     wait_for(snap_http.connect_interface)(
